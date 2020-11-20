@@ -1,0 +1,39 @@
+1)   DELETE / DROP / TRUNCATE TABLE의 차이 명확히 알기
+DROP(DDL)은 데이터와 테이블 전부를 지움
+TRUNCATE TABLE(DDL)은 테이블은 안지우고 데이터만 지움 (DROP후에 CREATE하는 개념)
+DELETE(DDL)은 데이터를 골라서 삭제할수 있음
+참고자료 : https://jhnyang.tistory.com/56
+            https://lee-mandu.tistory.com/476
+2)   ERD 익숙해지기
+sqldeveloper에서 테이블을 선택한 후 ‘MODEL’ 탭 눌러서 확인가능
+참고자료 : https://www.visual-paradigm.com/guide/data-modeling/what-is-entity-relationship-diagram/
+ 
+3)   컬럼명 붙이기 : 아래 두 경우의 차이점을 알아두자
+ALTER TABLE 테이블명 RENAME COLUMN 원래컬럼명 TO 바꿀컬럼명;
+CASE 원래컬럼명 WHEN 조건 THEN 입력할값
+       END AS 새컬럼명
+4)   강사님께 여쭤보고 싶은점
+-     CASE문에서는 SELECT 다음에 *는 안되고 컬럼명만 들어가야 되는지
+-     IN과 LIKE를 같이 쓸수있는지
+       ex) LIKE로 %SA자가 들어간 이름을 찾을 수 있다. IN을 같이 쓸수 있으면 %SA, %SIE, %IE 들어간 이름을 같이 찾을수 있지 않을까?
+5)   문제 풀기
+2-2 강의자료 : 문제 6
+ERD를 참고하여 데이터 위치를 찾아가는 방법 외의 방법이 있을까요?
+2-3 강의자료 : 문제 7
+update locations set postal_code = '99999' where postal_code is null;
+ select postal_code ||' - '|| street_address ||' - '|| city ||' - '|| state_province ||' - '|| country_id as 주소
+ from locations where country_id = 'UK';
+--> 다른 방식 나오면 공유합시다!
+양햄찌가 만드는 세상양햄찌가 만드는 세상
+[ORACLE,SQL] drop vs truncate vs Delete 차이점. 테이블 삭제, 데이터 삭제 명령어 알아보자.
+데이터베이스(DB, DBMS) 목차 DROP - 테이블 삭제 테이블을 삭제하는 명령어 입니다. 사용예시) DROP TABLE CUSTOMER 만들어졌던 테이블이 싹 다 삭제됩니다. 존재 자체가 삭제! TRUNCATE - 데이터만 통 삭제 tr..
+2019년 2월 6일 (34kB)
+https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FXnKxd%2FbtqFNrynXkA%2FCM3SKEtAKDymtC0PJLXXBK%2Fimg.png
+개발/일상_Mr.lee개발/일상_Mr.lee
+drop, delete, truncate 차이점 및 개념 이해하기
+안녕하세요. 오늘의 포스팅 주제는 DROP, TRUNCATE, DELETE 명령어에 대해 알아보고자 합니다. 그리고 차이점을 알아보도록 하겠습니다. TRUNCATE 명령어 개념 : 테이블의 데이터를 전부 삭제하고 사용하고 있던..
+2019년 11월 6일 (29kB)
+https://img1.daumcdn.net/thumb/R800x0/?scode=mtistory2&fname=https%3A%2F%2Ft1.daumcdn.net%2Fcfile%2Ftistory%2F99A5253F5DC1723107
+visual-paradigm.comvisual-paradigm.com
+What is Entity Relationship Diagram (ERD)?
+Learn Entity Relationship Diagram (ERD). Read this ERD guide for everything you need to know about data modeling and database design with ERD.
