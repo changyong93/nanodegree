@@ -1,0 +1,192 @@
+1) 데이터프레임 만들때 아래 두 경우 차이가 무엇인지? (열이름??)
+
+     test3 <- as.data.frame(mat) = matrix형태의 mat데이터를 data.frame형태로 변환
+
+     test3 <- data.frame(mat) = mat데이터를 토대로 data.frame생성
+
+2) set.seed(1234)에서 1234 숫자 의미?
+    - 난수 함수와 함께 사용 시 특정 난수 번호를 1234번에 저장
+
+3) load() 함수에 대해서 
+
+  - image 파일 > 변수로 묶어서 저장! 한다는 말이 이미지 데이터를 말하는건지 = workspace에 저장된 모든 변수 및 데이터 저장
+
+4) R예제문제 변형
+
+Sepal.Length 변수를 0.2로 나눴을 때 나머지가 "0"인 행만 출력하시오.
+iris[(iris$Sepal.Length*10)%%2==0,1] --> 정상 결과 출력
+iris[iris$Sepal.Length%%0.2==0,1] -->Sepal.Length가 6.2, 5.8 등 값을 제외한 6.4 값만 제대로 나눠져서 결과가 출력 되는데, 왜 이런 결과가 나오는지
+-> 강사님께 질문 후 공유 예정
+
+5) merge로 합칠 때 by.x와 by.y가 다른건 어떤 경우?
+x와 y의 데이터에 동일한 데이터형태와 내용을 가지고 있으나 컬럼명이 다를 때
+
+### **Review**
+
+: [](https://www.notion.so/adafd71deb2347069f55b665004db1d3) -1
+
+**1) 파일 불러오기**
+
+- 몇 년전 패키지가 나와서 엑셀 불러오는것도 가능해졌지만
+- 불안정한 감이 있어서 csv나 r파일로 다시 저장해서 가져오기도 함
+- 데이터 불러올때는 변수할당을 꼭 해줘야 ex) test <- read.csv(‘test.csv’)
+- 한글 깨질 때 파일인코딩으로 맞춰주거나 파일을 아예 새로 저장해서 열면 문제 해결할 수 있다. fileEncoding=’euc-kr’
+
+**2) 데이터 확인하기**
+
+str(pop_seoul)
+
+summary(pop_seoul) -> 변수마다 어떻게 분포돼있는지 알려줌.
+
+(범주형은 개수로, 순서형은 평균값, quartile값 등 알려줌)
+
+**3) 저장하기**
+
+# csv로 내보내기
+
+write.csv(변수, file=’aaa.csv’, row.names=F)
+
+> 덮어쓰기로 저장되므로 주의해야함
+
+**4) 데이터 추출하기**
+
+- 논리에 맞는 값 추출 : data[논리연산자, ] -> 행 조건에 연산을 써줘야함(열 조건이 아닌)
+- $를 써서 불러올 변수를 정할수 있음
+- sort와 order
+
+> sort(iris$Sepal.Length, decreasing=T)[1:10]
+
+> iris[order(iris$Sepal.Length, decreasing=T), ]
+
+**5) 데이터의 열 추가 및 제거**
+
+- **추가**
+
+    tmp_df<-data.frame(AA = c(1:5), BB = c(“A”,”A”,”B”,”B”,”B”))
+
+    tmp_df$CC <- 1
+
+    tmp_df$DD <- tmp_df$AA + tmp_df$CC
+
+- **제거**
+
+    tmp_df[, -1] -> 1열 지움
+
+    tmp_df[, c(-1, -2)] -> 1,2열 지움
+
+- > 1,2열을 지웠어도 tmp_df에 덮어쓰기 된 것은 아니라 tmp_df 불러오면 다시 지우기 전 상태로 불러오기가 됨
+
+    tmp_df[, -“AA”] -> 텍스트의 빼기는 인식 못함
+
+    tmp_df[, c(“BB”,”CC”,”DD”)]
+
+    which(names(tmp_df)==”CC”)
+
+     CC인 열만 뽑아내고 which 함수를 쓰면 CC열이 몇번째 위치해있는지 숫자로 알려줌 (다음시간에 더 자세히 배울 예정)
+
+**6) 데이터 합치기**
+
+rbind(data1, data2)
+
+cbind(data1, data2)
+
+merge(A,B, by=’key’, all.x=True)
+
+- > all.x=TRUE, all.y=TRUE, all=TRUE, all=FALSE
+
+cbind와 $로 데이터 붙이는 것의 차이
+
+- > cbind는 두 데이터를 붙이는 것, $는 데이터를 업뎃하거나 새로운 데이터를 붙이는 것
+- > ex) cbind(my_data, another_data) vs. my_data$amount=100
+
+merge(sales, prod, by=’PROD’, all.x=TRUE)
+
+merge(sales, prod, by=’PROD’, all=TRUE) à all 기능 매우 유용, 중요!!!
+
+**주의사항
+
+조인을 할 때 PROD값의 정보가 여러 개이면 조인된 테이블의 데이터가 기하급수적으로 늘어나서 결과값이 늘어남
+
+1대다는 가능하지만 다대다는 불가!!
+
+7**) 데이터프레임 만들때 아래 두 경우 차이가 무엇인지?**
+
+test3 <- as.data.frame(mat) ** 다른 데이터 형태에서 데이터 프레임 형태로 변형하겠다는 의미!
+
+test3 <- data.frame(mat) **데이터프레임 형태로 저장하겠다는 의미!
+
+8**) set.seed(1234)에서 1234 숫자 의미?**
+
+- 랜덤 샘플을 고정하는 것
+
+    특별한 목적을 위해서 같은 순서의 난수(랜덤숫자)를 만들 수는 없을까요? 여기서 시드값 (seed) 이라는 개념이 나옵니다. 시드값은 컴퓨터 내부에서 돌아가는 특정한 난수 생성 공식에서 처음 시작값을 주어 매번 같은 값이 나오게 만드는 것입니다. R에서는 set.seed 함수를 이용합니다. set.seed(원하는 시드값)을 주고 작동을 시키면 됩니다.
+
+    > set.seed(1234)
+
+    > runif(5)
+
+    [1] 0.1137034 0.6222994 0.6092747 0.6233794 0.8609154
+
+    > set.seed(1234)
+
+    > runif(5)
+
+    [1] 0.1137034 0.6222994 0.6092747 0.6233794 0.8609154
+
+- *중요한 것은 set.seed와 난수를 생성하는 명령어를 같이 실행시켜야 한다는 것입니다. 따로 실행시키면 매번 다른 난수가 생성됩니다.
+
+    정리 : set.seed(1234)에 랜덤숫자를 할당?해놓고 sample 함수를 돌리기전에 저 시드를 실행시킨다음에 랜덤을 돌려야 같은 값이 나오는 느낌인거 같습니다.
+
+    출처 : R에서 난수 형성하기와 시드값
+
+    [https://m.blog.naver.com/PostView.nhn?blogId=jjy0501&logNo=220787861219&proxyReferer=https:%2F%2Fwww.google.com%2F](https://m.blog.naver.com/PostView.nhn?blogId=jjy0501&logNo=220787861219&proxyReferer=https:%2F%2Fwww.google.com%2F)
+
+9) load() 함수에 대해서
+
+readRDS("iris.rds")
+
+R파일을 R데이터 형태로 가져오기 saveRDS(new_data, file = "new_iris.rds") -
+
+RDS 파일로 저장 변수명, 저장 파일명 load('iris.rdata')
+
+workspace 데이터 저장save(iris1, iris2, file = 'iris_data.rda') #workspace의 변수 일부 저장
+
+ex) rds는 엑셀파일이 아니고 안에 데이터만 주는거
+
+rda는 엑셀파일 자체! 느낌! 여러개 R 객체를 한번에 저장할 때
+
+10**) merge로 합칠 때 by.x와 by.y가 다른건 어떤 경우?**
+
+- 같은 데이터인데 컬럼명이 다른 경우 쓰이게 된다
+
+11**) cut()함수 > 실무에서 많이 사용됨**
+
+my_data$age_grp = cut(my_data$age,
+
+breaks=c(10,20,30,40),
+
+include.lowest=TRUE, ##왼쪽꺼 포함할꺼냐!
+
+right=FALSE, ##ex) 오른쪽값, 20을 포함시킬지 말지!
+
+labels=c('10_19','20_29','30_39'))
+
+12) ****강사님에게 질문사항**
+
+Sepal.Length 변수를 0.2로 나눴을 때 나머지가 "0"인 행만 출력하시오.
+
+iris[(iris$Sepal.Length*10)%%2==0,1] --> 정상 결과 출력
+
+iris[iris$Sepal.Length%%0.2==0,1] -->Sepal.Length가 6.2, 5.8 등 값을 제외한 6.4 값만 제대로 나눠져서 결과가 출력 되는데, 왜 이런 결과가 나오는지
+
+13) **참고 자료 : 링크**
+
+[R데이터분석] 핵심 요약 정리③ - 데이터 분석을 위한 필수 패키지와 함수
+
+https://post.naver.com/viewer/postView.nhn?volumeNo=17077114&memberNo=25379965&vType=VERTICAL
+
+[https://3months.tistory.com/291](https://3months.tistory.com/291)
+
+유명하고 많이 사용하는 R 패키지 정리
+
+https://cran.r-project.org/web/packages/available_packages_by_name.html
