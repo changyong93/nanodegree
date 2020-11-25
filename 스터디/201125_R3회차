@@ -1,0 +1,111 @@
+1. 질문토의
+ 가. 정훈
+ rolls$prob1 <- prob[rolls$Var1]
+ rolls$prob2 <- prob[rolls$Var2]
+ rolls$prob <- rolls$prob1 * rolls$prob2
+ rolls$prob1 컬럼을 만드는 식까지는 알겠는데 prob[rolls$Var1]에서 prob[]하면 prob안에 있는 데이터를 들여다보는 느낌으로 알고 있는데 어떻게 rolls에 있는 컬럼을 가져올 수 있는지 궁금하네요...ㅎㅎ 그냥 외우면 되는건지..
+정리 : 데이터에 들어가서 작업한다기보단 다른 데이터에 같은 값을 매칭해주는 짝맞춰주는 느낌?!
+ 나. 찬서
+ i<-2
+ while (i<=9) {
+ print(i * c(1:9))
+ i=i+1
+ }
+해당 문장에 커서 놓고 ctrl+enter 했을때는 출력이 안되고 문장 전체 블록지정 해서 ctrl+enter 해야 출력이 되는데 왜 그런걸까요?
+정리 : 커서위치를 확인해서 실행시켜보기!
+ 다. 상용님
+ z <- 0
+ i <- 1
+ while( i <= 10) {
+  z = z + i
+  cat("cummulative summation",z, "\n") #print 비슷, cat는 텍스트와 숫자,변수 등 조합할 때 사용
+  i = i + 1
+ }
+정리 : i = i + 1에서 ‘=’는 변수에 할당해주는 느낌!
+ 라. 유정
+ md = function(x,...) {print(x) summary(...)} 여기서 summary 가 존재 이유
+ summary를 포함시키고 있음, z = 1:20 / zz = print(function("hi",z)) 해야 print 값이랑 summary 값이 출력
+ rolls$prob1 <- prob[rolls$Var1] rolls 안에 prob1 컬럼이 생성
+ rolls[name_col] <- prob[rolls[,i]] 요렇게 해도 name_col 이 생성?
+ rolls[, 'Var1']
+ roll$Var1
+ 정리 : 같은 값이 나오며, 표현방식 차이!
+2. 키워드 정리 및 내용
+ 가. 조건문
+ 1) if, else if , else
+ if( 조건1 ) {
+  # 표현식 1 #조건1= TRUE 경우 실행
+ } else if (조건2) {
+  # 표현식 2 #조건1 =FALSE & 조건2 = TRUE 경우 실행
+ } else {
+  # 표현식 3 #조건1 & 조건2 = FALSE경우 실행
+ }
+ ifelse
+ ifelse(조건1, 표현식1, #조건1=TURE 일 경우 표현식1 실행
+  ifelse(조건2, 표현식2, #조건1=FALSE & 조건2=TRUE 경우 표현식 2실행
+  ifelse(조건3, 표현식3, 표현식4)))
+  #조건1 & 조건2=FALSE & 조건3=TRUE일 경우 표현식3 실행
+  #조건1 & 조건2 & 조건3 모두 FALSE일 경우 표현식4 실행
+ 2) expand.grid : 데이터의 모든 경우의 수 펼쳐보기, 조건문은 아니지만, 데이터 파악을 위해 사용하는 유용한 함수
+ die <- 1:6
+ expaned.grid(die,die)
+ 나. 루프문
+ 1) for문
+ for(value in that){ #value가 that에 포함(만족)일 경우 code 반복 실행
+  code
+ }
+ 2) while문
+ while (condition) { #condition을 만족할 경우 code 반복 실행
+  code
+ 3) repeat문
+ repeat { # condition에 도달하기 전까지 code 반복 실행
+  code
+  if (condition) break}
+ 4)　function 생성
+ myfunction <- function(input values){ #함수 생성
+  code #input값을 넣어주면 code가 실행되고 결과 값이 출력
+  return(output values)
+ } #input 값에 (x, y=6)과 같은 형태로 넣을 시
+  #y값을 넣지 않을 경우 y=6으로 사용
+  #input에 (x, ...)같이 사용할 경우 가변인수 적용
+ 다. apply문
+ 1) apply(x, margin, func) → input : array, output : vector array
+ - margin : func 적용 기준 → 1:행 / 2:열
+ apply(iris[, 1:4], 2, sum)
+ data : iris[, 1:4]
+ 2 : column으로 func 적용
+ sum : data 적용 함수
+ 2) lapply(x, func) → input : list or vector, output : list
+ - 리스트 형태로 반환되며, vector로 전환하려면 unlist()
+ lapply(iris[,1:4], mean) #= sapply(iris[, 1:4], mean, simplify = F)
+ data : iris[, 1:4]
+ mean : column의 mean 계산
+ 반환 결과를 활용하려면 unlist(lapply_Result)로 list를 vector로 반환할 것
+ 3) sapply(x, func,simplify=F) → input : list or vector, output : vector or array
+ - simplify → F(=lapply) / T(=apply)4)
+ sapply(iris[, 1:4], mean) # = sapply(iris[, 1:4], mean, simplify = T)
+ data : iris[, 1:4]
+ mean : column의 mean 계산
+ 4) tapply(x, index, func) → input : list or vector and factor, output : vector or array
+ - x에 func 적용 시 index 기준으로 결과값 반환
+ tapply(1:10, rep(1, 10), sum)
+ 10까지의 숫자가 있고 이들이 모두 한 그룹에 속해 있을 때, 이 그룹에 속한 데이터의 합
+ tapply(1:10, 1:10 %% 2 == 1, sum)
+ 홀짝에 따라서
+ 5)　rowSums / colSums
+ rowSums(iris[, 1:4], na.rm = FALSE) # row별로 sum
+ colSums(iris[, 1:4], na.rm = FALSE) # column별로 sum
+ data : iris[, 1:4]
+ na.rm : false(기본값)이며, Na 생략 안함
+ 6) unlist
+ unlist(
+  x, //# R 객체. 보통 리스트 또는 벡터
+  recursive=FALSE, //# False : 리스트 내부 리스트도 형태 변혼 / True : 리스트 내부 리스트 형태 유지
+  use.names=TRUE //# 리스트 내 값의 이름을 보존할지 여부
+ )
+ 7) do.call
+ do.call(
+  func, # 호출할 함수
+  what, # 함수에 전달할 인자의 리스트
+ )
+ do.call(cbind, lapply(iris[, 1:4], mean))
