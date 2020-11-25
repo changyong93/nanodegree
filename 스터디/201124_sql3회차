@@ -1,0 +1,144 @@
+키워드 
+https://www.notion.so/SQL3-c958398437ef4f6c88a458a421a6d525
+
+### **질문토의**
+
+1. ppt에 있는 대로 사용자 정의 함수 만들고 실행하면, 컴파일러 오류가 발생하는데, 저만 그런 걸까요...? (유정)
+
+  2. 상용 
+
+**P2** (3.1)
+
+CASE WHEN value1 > 0 THEN value1
+
+    WHEN value1 = 0 THEN 0
+
+    ELSE value1 * -1
+
+마지막 부분 내용이 그게 이외의 VALUE "전체"는 -1이다.가 맞는해석인지 
+
+→ value1(음수) x -1 = (양수)
+
+**P5 (3.1)**
+
+"LN(n) : n의 자연로그 반환"이라고 기재되어 있는데 정확히 자연로그 반환하는 공식이 어떻게 되는지? 
+
+**P16 (3.1)**
+
+EXP, LN, LOG 함수 실습 
+
+SELECT EXP(LN(5))
+
+FROM DUAL;
+
+이 함수의 뜻이 5의 자연로그 값 승 반환인 것으로 해석된다.
+
+하지만 1) 무슨의미 2) 왜 이런 함수를 쓰는지  
+
+### **과제해결**
+
+**3-1-2 문제**
+
+방법1)
+
+select substr('Is this thr real life? Is this just fantasy?',instr('Is this the real life? Is this just fantasy?','fantasy')) from dual;
+
+방법2) 
+
+select length('Is this the real life? Is this just') from DUAL ;
+
+SELECT SUBSTR('Is this the real life? Is this just fantasy?',36) from DUAL;
+
+**3-1-3 문제**
+
+방법1)
+
+select add_months(trunc(sysdate, 'MM'),1) from dual;
+
+방법2)
+
+SELECT TRUNC(ADD_MONTHS(SYSDATE,1), 'MM') FROM DUAL;
+
+방법3)
+
+select trunc(last_day(sysdate)+1) from dual;
+
+**3-1-4 문제**
+
+select employee_id, hire_date, round(months_between(sysdate, hire_date))||'개월' as 근속개월수 from employees where employee_id <=110;
+
+**3-1-6 문제**
+
+select location_id, street_address, substr(street_address, instr(street_address, ' ')+1) as street_address2 from locations where location_id <= 2400;
+
+**3-2-2 문제**
+
+방법1)
+
+SELECT employee_id, first_name, last_name, salary, commission_pct ,**nvl2**(commission_pct,salary + (salary*commission_pct), salary) as real_salary
+
+FROM employees order by real_salary desc;
+
+방법2)
+
+select employee_id, first_name, last_name, salary, commission_pct, **nvl**((salary + (salary*commission_pct)), salary) as real_salary from employees order by real_salary desc;
+
+방법3) - 강사님
+
+select employee_id, first_name, last_name, salary, commission_pct, **salary + salary * nvl(commission_pct,0)** as real_salary from employees order by real_salary desc;
+
+**3-2-3 문제**
+
+방법1)
+
+SELECT employee_id, first_name, last_name, commission_pct, salary, DECODE(commission_pct, NULL, salary , salary + (salary * commission_pct)) as real_salary FROM employees;
+
+방법2)
+
+select employee_id, first_name, last_name, salary, commission_pct, decode((salary + (salary*commission_pct)), null, salary, (salary + (salary*commission_pct))) as real_salary from employees order by real_salary desc;
+
+**3-2-4 문제**
+
+방법1) - 윤년 고려x
+
+SELECT 2019 * 365 + TO_NUMBER(TO_CHAR (TO_DATE('2020-10-31' , 'YYYY-MM-DD'),'DDD')) HOW_LONG from DUAL;
+
+방법2) - 강사님, 윤년까지 고려
+
+select to_date('2020-10-31', 'YYYY-MM-DD') - to_date('0001-01-01', 'YYYY-MM-DD') from dual;
+
+방법2) - 창용님, 윤년까지 고려
+
+create table day_cal( yr number, yr_chr varchar2(10), dy number);
+
+declare
+
+count_year number :=1;
+
+begin
+
+while(count_year< to_number(to_char(to_date('2020-10-31','YYYY-MM-DD'),'YYYY')))
+
+loop
+
+if ((mod(count_year,4)=0) and (mod(count_year,100)!=100)) or (mod(count_year,400)=0)
+
+then
+
+insert into day_cal(yr, yr_chr, dy) values(count_year,'윤년', 366);
+
+count_year := count_year + 1;
+
+else
+
+insert into day_cal(yr, yr_chr, dy) values(count_year,'평년', 365);
+
+count_year := count_year + 1;
+
+end if;
+
+end loop;
+
+end;
+
+select * from day_cal order by yr;select sum(dy)+to_number(to_char(to_date('2020-10-31','YYYY-MM-DD'), 'DDD')) as total_num_of_days from day_cal;
