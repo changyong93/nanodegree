@@ -49,19 +49,50 @@ typeof() #변수 타입
 summary() #자료 전체 요약
 head() #데이터 상위 n개
 tail() #데이터 하위 n개
+str() #데이터 구조 확인
+sapply(iris, class) # 변수 구조 확인
 names() #변수 별칭
 length() #데이터 길이
 sum() #데이터 합계
 dim() #matrix 데이터 행렬 개수
       #dim(벡터변수명) <- c(nrow,ncol) 시 matrix생성됨
 which(names(dataframe) == "컬럼명") # 해당 컬럼의 번호 찾기
+expand.grid() #데이터 모든 경우의수 보기
+nrow() # row 개수 반환
+ncol() # col 개수 반환
+rowSums() #row sum
+colSums() #col sum
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ########데이터 형태 변경
 as.data.frame(data)
+as.data.frame(t(data)) # row & col date 치환
 as.character(data) #문자형으로 변환
 as.matrix(data)
 factor(data) # 범주형으로 변환
+
+apply(x,margin,func) #x :배열&행렬, margin: 함수 적용 방향으로 1(열방향)2(행방향)
+                     # mat이나 vector로 결과  출력
+
+lapply(x,func,...) # 리스트트 형태로 데이터 출력
+                    #x :벡터,리스   트,표현식,DF / func 적용 함수
+                    #... : 추가 인자로, 이 인자들은 Func에 전달됨
+sapply(x,func, simplify= T/F) # T simplify T(default) : vector나 mat출력 / F : list출력(=lapply)
+tapply(X,INDEX,FUNC,...) #결과값은 배열(array)
+  #X, 벡터
+  #INDEX, 데이터를 그룹으로 묶을 색인. 
+  #       팩터를 지정해야 하며 팩터가 아닌 타입이 지정되면 팩터로 형 변환된다.
+  #FUNC,    # 각 그룹마다 적용할 함수
+  #...,    # 추가 인자. 이 인자들은 FUNC에 전달된다.
+
+
+unlist(x, recursive=FALSE, use.names=TRUE)
+  #x, R 객체. 보통 리스트 또는 벡터
+  #recursive=FALSE, x에 포함된 리스트 역시 재귀적으로 변환할지 여부로, 리스트안에 리스트가 있을 경우 안쪽 리스트도 형태를 없애겠느냐에 대한 여부
+  #use.names=TRUE 리스트 내 값의 이름을 보존할지 여부
+
+do.call(func, what) #func을 what에 적용하여 리스트 결과를 반환
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ########데이터 추출
 subset(dataframe, dataframe_colname) #해당 컬럼 추출
