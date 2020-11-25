@@ -100,6 +100,13 @@ select * from employees where regexp_like(job_id, 'PRES|AD', 'i');
     x : whitespace 문자가 무시(본래 디폴트는 무시 안함)
         *whitepsace -> 공백, 탭 개행, 캐리지리턴 등 비스무리한 것들 모두 포함
 https://jhnyang.tistory.com/292 페이지 참고*/
+
+--집계 함수
+count() 개수 반환
+max() 최댓값 반환
+min() 최솟값 반환
+sum() 합계 반환
+avg() 평균 반환
 --case---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --단순형 case
 select country_id, country_name,
