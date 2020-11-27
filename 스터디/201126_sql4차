@@ -1,0 +1,51 @@
+키워드 정리
+https://www.notion.so/SQL-4-d150a5f178c9420489ef3702dddc807e
+
+
+
+***질문***
+/*4.1.5 COVID19 테이블에서 한국 데이터에 대해 다음 결과가 나오도록 쿼리 작성 */
+--code문으로 작성하는 방법
+select to_char(dates, 'YYYY-MM') MONTHS,
+       sum(new_cases) 확진자수,
+       sum(new_deaths) 사망자수,
+       case when sum(new_cases) =0 then 0
+            else round(sum(new_deaths)/sum(new_cases)*100,2)
+       end 사망률
+from covid19
+where 1=1
+and iso_code='KOR'
+group by to_char(dates, 'YYYY-MM')
+order by 1;
+
+/*4.1.6 COVID19 테이블에서 2020년 10월에 가장 많은 확진자가 나온 상위 5개 국가는 어떤 나라일까요 */
+**월로 구분하여 작성한 쿼리
+select country, nvl(sum(new_cases),0)
+from covid19
+where 1=1
+and country <>'World'
+and to_char(dates,'YYYY-MM') ='2020-10'
+group by country
+order by 2 desc;
+
+/*4.2.4.1(문제 변형) covid19 테이블에서 2020년 전반기(1월~6월)에는 월별 확진자가 10000명 이상이었는데,
+후반기(7월~10월) 에는 월별 확진자가 1000명 이하로 떨어진 적이 있는 국가와 확진자 수를 구하는 문장을 작성(hint : intersect)*/
+select country, sum(new_cases)
+from covid19
+where country in
+    (select country
+    from covid19
+    where 1=1
+    and to_char(dates, 'YYYY') = '2020'
+    and to_char(dates, 'MM') < 7
+    having sum(new_cases) >=10000
+    group by to_char(dates, 'MM'), country
+    intersect
+    select country
+    from covid19
+    where 1=1
+    and to_char(dates, 'YYYY') = '2020'
+    and to_char(dates, 'MM') >= 7
+    having sum(new_cases) <=1000
+    group by to_char(dates, 'MM'), country)
+group by country;a
