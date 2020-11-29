@@ -1,4 +1,4 @@
-#xlsx 불러오기 위한 라이브러리 설치 및 실행 -> read.xlsx() 사용 가능능
+#xlsx 불러오기 위한 라이브러리 설치 및 실행 -> read.xlsx() 사용 가능
 install.packages('openxlsx')
 library(openxlsx)
 
@@ -9,3 +9,11 @@ library(openxlsx)
 #일부 데이터를 합쳐서 한번에 확인할 경우에도 사용
 install.packages("plyr")
 library(plyr)
+
+
+# dplyr 패키지 설치
+##sql의 select where 등과 같은 명령어로 sql을 토대로 만든 패키지
+##패키지별로 함수의 이름이 같은 경우에는 패키지 이름도 명시해야 함
+
+install.packages('dplyr')
+library(dplyr)
