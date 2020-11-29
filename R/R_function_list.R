@@ -14,6 +14,7 @@ read.csv('test.csv') #지정한 작업폴더의 csv파일일 경우
 read.csv('test.csv', fileEncoding = 'CP949') #window 인코딩
 read.csv('test.csv', fileEncoding = 'euc-kr') #window 인코딩
 read.csv('test.csv', fileEncoding = 'utf-8') #mac 인코딩
+#fileEncoding이나 encoding이나 둘 다 같은 변수로 적용됨
 #인코딩은 세 개다 해보고 안될 경우 데이터 excel 파일을 새로 만들어서 기존 데이터 저장후 다시 해보기
 #같은 운영체제는 인코딩 생략 가능능
 
@@ -41,7 +42,7 @@ ls() # workspace의 변수 목록 출력
 ls.str() # workspace의 변수 목록 및 데이터 출력
 rm(변수명) #workpace의 변수 선택하여 삭제
 rm(list = ls()) #workpsace의 모든 변수 삭제
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 ########데이터 확인
 mode() # 물리적 데이터 형태
 class() # 함수로 사용 시 구분되는 데이터 형태
@@ -57,13 +58,32 @@ sum() #데이터 합계
 dim() #matrix 데이터 행렬 개수
       #dim(벡터변수명) <- c(nrow,ncol) 시 matrix생성됨
 which(names(dataframe) == "컬럼명") # 해당 컬럼의 번호 찾기
+unique() #데이터 중복값 없이 종류 확인할 때때
+
 expand.grid() #데이터 모든 경우의수 보기
 nrow() # row 개수 반환
 ncol() # col 개수 반환
-rowSums() #row sum
-colSums() #col sum
+rowSums(x, na.rm = FALSE) #row sum, na를 제외할지 여부
+colSums(x, na.rm = FALSE) #col sum, na를 제외할지 여부부
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#dplyr 함수로 필요한 데이터 조회
+dplyr::filter(data, filter방법) #sql where와 같음
+dplyr::arrange(data, arrange_method) # 오름차순 / 내림차순(desc(data))
+dplyr::select(data, col명) #data의 특정 컬럼 선택
+distinct(data, col명) #반복 내용 제거하여 불러오기
+                      #중복 내용 없애는 연산이 추가되어 대용량 처리시 오래 걸림
+                      #간단한 분류만
+dplyr::mutate(data, new_col_name = 데이터셋) #새로운 컬럼 추가
+dplyr::count(data, col_name) #특정 그룹별 개수 세기
+                             #col_name 부분은 option
+dplyr::group_by(data, col_name) # data를 어떤 col_name 기준으로 그룹화 할 것인지 인지시키는 작업
+dplyr::summarize(data, 요약방법) # summarise(UK)도 같음 summarize(US) 
+dplyr::top_n(data, n , col_name) #data를 col_name 기준으로 상위 5개 보기
+data %>%  #파이프 라인, %>% 기준 아래로 갈수록 해당 내용과 같이 내용 조회
+  filter() %>% #ctrl + shift + m
+  group_by
+#--------------------------------------------------------------------------------------------------
 ########데이터 형태 변경
 as.data.frame(data)
 as.data.frame(t(data)) # row & col date 치환
