@@ -1,0 +1,125 @@
+Dplyr
+- 데이터를 요약할 때 가장 많이 사용하는 패키지 중 하나. 100개 정도의 함수가 있음.
+- 파이프라인을 활용한 함수간 연계 가능. SQL에서 SELECT WHERE로 추출하는것과 비슷하다.
+- dplyr에서는 (값, 조건) 이렇게 불러오는 형태가 비슷함
+- 함수명은 직관적이고 쉽지만 패키지끼리 함수명이 교차하는 경우 있음  dplyr:: 앞에 붙여줌
+
+SELECT(데이터명, 열1, 열2…)
+-	변수 이름으로 더하고 빼고, 콜론으로 묶는것도 다 가능해서 쉽게 접근할 수 있음!
+-	보통 컬럼 선택할 때 [ , ___]로 불러오면 벡터형태로 나오는데, 여기서는 데이터프레임 형태 그대로 가져온다는 차이가 있음
+-	ex) select(delivery, -요일) : 요일 컬럼만 뺀 값을 보여줌
+
+FILTER(데이터명, 조건1, 조건2…)
+-	subset과 사용하는 방법이 같다
+-	ex) filter(delivery, 시군구==’성북구’, 요일 %in% c(‘토’,’일’), 업종==’피자’ | 통화건수>=100)
+
+ARRANGE(데이터명, desc(열1), 열2…)
+-	SQL의 order by와 같음
+-	DESC로 정렬하려면 desc(열이름) 형태로 지정해줘야함
+-	앞에 명기된 열부터 차례대로 오름차순 정렬해줌
+-	ex) arrange(delivery, desc(시군구), 요일, 업종)
+
+MUTATE(데이터명, 새로운 컬럼명 = 계산식)
+-	변수를 생성하고 활용하는것에 유연함.
+-	파이프라인 타고가며 데이터를 만들다가 중간중간 mutate로 새로운 정의 추가할 수 있음
+-	ex) mutate(delivery, 새요일=paste0(요일, ‘요일’))
+
+GROUP_BY & SUMMARIZE 
+-	대부분 짝으로 같이 씀. 묶어준 그룹에 대해 집계함수 등을 적용해줄 수 있음
+(group_by와 함께 쓰지 않으면 그냥 열에 바로 집계함수를 쓰면 되므로 summarise가 필요없음)
+-	summarise에 변수 이름을 주는게 보기 좋음
+-	ex) 시간에 따른 카테고리에 따른 판매금액을 뿌려줘
+ 시각화 한게 EDA(Exploratory Data Analysis, 탐색적 데이터 분석),
+이 자료를 A/B테스트 하는것만으로도 충분한 인사이트를 얻을 수 있다
+-	ex) delivery_grp = group_by(delivery, 시군구)
+summarise(delivery, mean = mean(통화건수),
+m=min(통화건수),
+M=max(통화건수))
+-	ex) summarise(delivery_grp, length(통화건수))   통화건수 행의 수를 리턴
+   (delivery %>% count(통화건수)와 동일)
+
+Pipeline(%>%)
+-	코드의 연결을 위한 파이프라인 (dplyr의 가장 유용한 함수!)
+-	디버깅(오류추적) 가능, 한줄 한줄 트래킹 된다는 점이 큰 장점!
+-	추출한 데이터를 변수에 저장하고 write.csv로 저장해서 보고용으로 쓸 수 있다
+-	일단 파이프라인 타고 그 데이터로 들어가고 나면, 뒤에 데이터명을 붙일 필요 x
+-	ex) airquality %>%
+   filter(month!=5) %>%
+   group_by(month) %>%
+   summarise(mean(Temp, na.rm=TRUE))
+-	na.rm=TRUE : NA값이 있어도 무시하고 처리
+-	제일 어려운 부분이 UNGROUP
+
+Slice(데이터이름, 행번호)
+-	특정 행번호 관측치 출력
+-	ex) slice(delivery, c(1,3,5:10))  원본의 행번호는 안나오고 차례대로 쌓임
+delivery[c(1,3,:5:10), ]  행번호 나옴
+
+Top_n(데이터이름, sinz=n, wt=변수이름) 
+-	많이 쓰이는 유용한 함수! 시간별로 구매액 Top n대 고객 추출할 수 있음
+-	wt 지정 안하면 : 현재 데이터 정렬 기준 상위 n개 추출
+wt 지정하면 : wt변수를 기준으로 상위 n개 추출
+-	결과에 중복된 값이 있으면 요청한 개수보다 더 많은 값이 리턴되기도 함
+-	중복된 건 무시하고 정확히 n건만 보고 싶으면 내림차순 정렬해서 head로 5건만 조회하는게 편리할 때도 있음
+-	ex) top_n(delivery, 5, 통화건수)
+
+distinct(delivery, 업종) 새로운 행번호 / unique 원래 행번호 유지
+-	distinct는 처리하는데 시간이 오래 걸려서 대용량 데이터 처리할 때는 잘 안씀
+-	ex) 유통업계에서는 ~ 조건으로 구매한 고객이 몇 명인지? 조회할때 distinct 활용
+
+count(데이터이름, 열이름)
+-	해당 열을 group_by로 묶은 상태에서 각 group의 행의 수를 리턴해줌
+
+group_by(데이터이름, 열이름)
+
+ungroup()의 활용 : 익숙해지면 실무에서 많이 활용하는 기능
+-	시간대, 시군구 기준으로 정렬  언그룹  다시 시군구 기준으로 top 3를 뽑을 수 있음
+-	ex)
+delivery %>%
+   filter(업종==’중국음식’) %>%
+   group_by(시간대, 시군구) %>%
+   summarise(mean_call = mean(통화건수)) %>%
+   ungroup() %>%   없어도 같은 결과가 나옴
+   group_by(시군구) %>%
+   top_n(3, mean_call) %>%
+   arrange(시군구, desc(mean_call))
+ 시군구 별로 top 3 시간대를 보고싶을 때 ungroup 안한 상태에서 top_n을 쓰면 시군구별 & 시간대별에 대한 top3가 나오므로 ungroup을 하고 다시 시군구로 group_by를 해줘야함
+
+그외 팁
+연습문제
+ins %>%
+  filter(sex=="female") %>%
+  group_by(region) %>%  
+  summarise(num = n())
+# 바로 count(region) 안하고 group_by로 묶어서 쓰면 다른 작업에도 쓸수 있어서 유용
+# n()는 개수 세어달라는 명령어. 유용!
+# 국룰처럼 num=n()을 summarise에 써서 group_by 조건에 해당하는 행개수 셀수 있음
+
+함수 겹치는 경우
+dplyr::와 같이 함수 앞에 패키지명 붙여놓고 쓰는게 나중에 다양한 작업할 때 편리
+ 
+
+질문토의
+1. **NHIS 연습문제 2 - m1, m2.. 컬럼명을 안 붙여주면 왜 오류가 날까요?**
+NHIS %>%
+ group_by(SEX, AGE_GROUP) %>%
+ summarise(m1=mean(VSCN), m2=mean(RECN), m3=mean(EDEC_TRAMT), m4=mean(EDEC_SBRDN_AMT)) %>%
+ arrange(desc(m3))
+=> arrange에 m3처럼 변수명이 아니라 함수가 mean(VSCN)과 같이 함수가 입력될 경우, mean(VSCN)은 파이프라인에 따라
+   결과가 달라질 수도 있으므로 arrange가 자료 배치 불가
+   
+2. dplyr:: 작성 이유
+  => 다양한 패키지 사용 시 각 패키지의 내장함수명이 같을 경우 어떤 패키지의 내장함수인지를 표기하기 위함
+  
+3. 1번 문제에서 n=length(SEX)를 사용하는 이유
+  => 문제에서 sex & age_group에 따른 환자 수를 계산하는 문제므로, length() 함수를 사용하여 조건에 따른 환자 컬럼 계산
+  
+4. unique() 함수 사용 의의
+  => 특정 기준을 조회할 때 중복 데이터 제거
+
+5. unique() vs distinct()
+  => 공통 : 특정 조건에서 중복 데이터 제거
+  => 차이 : unique()는 중복 행 제거 후 행 번호 유지
+            distinct()는 중복 행 제거 후 행 번호 재지정 및 unique()보다 연산속도 빠름
+  
+  
