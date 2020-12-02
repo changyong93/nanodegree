@@ -197,3 +197,148 @@ subset(Sample.df, AA == "a")
 Sample.df[Sample.df$AA %in% c("a","b"),] #%in% c() 괄호안의 데이터 기준이 or로 적용
 #Type2
 subset(Sample.df, AA %in% c("a","b"))
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+##tidyr 패키지 함수
+spread(데이터 , 기준변수, 나열할 값)
+# 데이터를 기준 변수로 열 펼치기
+
+#단 데이터가 기준 변수에 따라 없는 값이 생성됨(NA)
+#이를 처리하기 위한 함수
+drop_na(결측치를 찾을 변수1, 변수2,...)
+#변수 입력 안할 경우 NA가 있는 행 모두 버리기
+#변수 입력 하면 변수에 NA가 없으면 행 버리기
+
+replace_na(list(변수1=값,변수2값,...))
+#변수마다 NA가 있을 경우 변경할 값 입력
+#spead와 replace_na는 세트로 적용됨
+
+
+spread() <-> gather()
+gather(데이터명, 새기준변수이름, 새변수이름, 모을 변수들)
+gather(category, count, 족발보쌈, 중국이름)
+#족발보쌈, 중국이름 등을 카테고리열에 담고, 각 변수마다 count 개수 넣기
+
+complete(컬럼1, 컬럼2, 컬럼3,..., fill=list(변수1 =0, 변수2=0,...))
+#데이터를 보면 특정 기준에 아무런 데이터가 없어서 경우의 보다 데이터가 적을 경우가 있음
+#이럴 경우 complete함수로 나머지 경우의 수를 생성하고, fill로 이 데이터의 NA를 특정 값으로 변경
+
+#--------------------------------------------------------------------------------------------------
+#stringr 패키지 내장함수
+#### 패턴찾기 ####
+
+#str_detect(데이터, 패턴)
+x <- c("apple", "banana", "pear")
+str_detect(x, "e") #특정 문자가 있는지 -> 논리형 T or F, 숫자로 바꾸면 T->1, F->0
+
+#str_count(데이터, 패턴)
+str_count(x,"e") #특정 문자 개수 반환
+
+#str_which(데이터, 패턴)
+str_which(x,"e") #특정 문자의 위치 반환
+
+#str_locate(데이터, 패턴)
+str_locate(x,"a")
+
+#텍스트 내에서 특정 문자 위치 반환
+#단 eeeee가 여러개 있더라도, 찾는 문자는 e 하나기에 하나의 위치만 반환
+#ee로 하면 start = 4번 / end = 5번
+
+
+### 부분집합 찾기
+#str_sub(데이터, 시작, 끝)
+x <- c("Apple", "Banana", "Pear")
+str_sub(x, 1, 3)
+str_sub(x, -3, -1) #뒤에서부터
+#각 문자에서 특정 범위의 문자열 가져오기
+substr(x,1,3)
+#str_sub(stringr 패키지 내장 함수) = substr(R 내장함수)
+#편한거 사용하면됨, 강사님은 str_sub 사용하심
+
+
+#str_subset(데이터, 패턴)
+str_subset(x,"r") ##특정 데이터가 포함된 텍스트를 조회하기
+
+
+### 문자열 변형하기
+# str_replace(데이터,찾는변수,바꿀변수)
+# str_replace_all(데이터,찾는변수,바꿀변수)
+str_replace("apple","p","l") #처음 찾은 p 문자를 l로 변환
+str_replace_all("apple","p","l") #텍스트 내의 모든 p를 l로 변환
+#불용어 처리할 때 많이 사용
+
+
+# Mutate STrings
+str_to_lower("STRING") #소문자로
+str_to_upper("string") #대문자로
+str_to_title("string") #첫 글자만
+str_to_title("ko-string") #첫 글자만, 구분자 구분함
+#-----------------------------------------------------------------------------------------
+#lubridate 패키지 내장 함수
+library(lubridate)
+# 기본적으로 일반 텍스트 데이터를 날짜 데이터로 바꿉
+as.Date('2020-01-01') #텍스트 전재, 날짜를 알아볼 수 있는 텍스트라면 OK
+
+# lubridate에 들어 있는 ymd() 함수는 어떤 모양이든 이를 날짜로 인식!
+ymd('20200110')
+mdy('January 10th 2020')
+dmy('10-jan-2020')
+ymd('820327')
+ymd(820327)
+#y : year, m : month, d : day
+
+# 날짜 데이터 뽑아내기
+date_test <- ymd(191020)
+
+year(date_test)
+month(date_test)
+day(date_test)
+week(date_test) #연도 기준 몇주차인지
+wday(date_test) #0 일요일 ~ 6 토요일
+wday(date_test,label = T) #요일 반환
+
+# 날짜로 각종 계산하기
+date_test + days(100) #100일 후
+date_test + months(100) #100개월 후
+date_test + years(100) #100일 후
+
+date()
+today()
+today()-date_test
+
+
+# 날자 + 시간 데이터
+ymd_hm(20-10-20 14:30) #시간이 포함된 경우 :(콜론)이 들어가기에 따움표로 묶어줘야 함
+ymd_hm("20-10-20 14:30")
+date_test2 <- ymd_hm("20-10-20 14:30")
+hour(date_test2)
+minute(date_test2)
+second(date_test2)
+
+#-----------------------------------------------------------------------------------------
+#결측치 처리
+
+#결측치 확인
+is.na(df)
+table(is.na(df)) # 전체에서 
+table(is.na(df$sex)) #행기준
+summary(df) #결측치 개수 반환, 단 문자형은 반환 X
+
+#결측치 제거
+df$filter(!is.na(score)) #특정 열에서 na가 있는 행을 제외하고 반환
+na.omit() #결측치 행 제거, 단 행 번호 유지
+# = tidyr::drop_na() #결측치 행 제거, 행 번호 재지정
+
+#결측치 대체
+ifelse(is.na(df$score),4,df$score) #결측치가 있으면 특정 값으로 변환
+df[is.na(df$score),"hwy"] <- mean(df$score, na.rm=T)
+#특정 열의 na를 na 제외한 평균 값으로 대체
+
+##zoo 패키지 내장 함수 na.locf0를 이용한 결측치 정리
+na.locf0(c(NA, NA, "A", NA, "B"), fromLast = FALSE) # 1
+## [1] NA  NA  "A" "A" "B"
+## NA가 있을 경우 왼쪽 데이터를 그대로 사용
+
+na.locf0(c(NA, NA, "A", NA, "B"), fromLast = TRUE) # 2
+## [1] "A" "A" "A" "B" "B"
+## NA가 있을 경우 오른쪽 데이터를 그대로 사용
