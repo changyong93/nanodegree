@@ -17,3 +17,26 @@ library(plyr)
 
 install.packages('dplyr')
 library(dplyr)
+
+#tidyr 패키지 설치
+## 데이터를 원하는 형태로 변경하는 패키지
+##형태 변환, 결측치 정리 등등
+install.packages('tidyr')
+library(tidyr)
+
+###########################
+###### 문자열 다루기 ######
+###########################
+#텍스트 마이닝쪽에서 많이 활용함
+#대표적으로, 불용어처리, 한글만 가져오기 등
+#원하는 텍스트 찾기
+#ex) 유통 데이터에서 남자,남성을 포함하는 데이터를 가져와서 분석하고 싶을 때 특정 행 추출
+## 기본 패키지 설치하기
+install.packages("stringr")
+library(stringr)
+
+install.packages('lubridate') #시간 데이터를 깔끔하게 정리해주는 패키지
+library(lubridate)
+
+install.packages("zoo") #na.ofcf0 함수 내장 패키지
+library(zoo)
