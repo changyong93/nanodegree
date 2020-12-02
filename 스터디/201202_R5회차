@@ -1,0 +1,179 @@
+**tidyr 패키지**
+spread() – to wide
+gather() – to log
+시각화를 위한 데이터 전처리 및 가공에 많이 사용
+
+**spread( )로 데이터를 여러 열로 나누기(long -> wide), 특정 변수를**
+aggr %>% spread(업종, 통화건수)
+업종의 변수별 통화건수를 보고 싶을 경우 함수 적용
+Tip. 변수명 설정할 때 한글로 하면 변수가 밀려 보이므로, 가급적 영어 변수명 사용
+
+**replace_na( )로 결측값 처리하기**
+replace_na(list(변수1=값, 변수2=값, ...))
+aggr_wide %>% replace_na(list(족발보쌈=999, 중국음식=0, 치킨=0))
+Spread() 함수 적용 시 특정 row별 특정 column에 대한 데이터가 없을 경우 NA 생성
+Spread()와 replace_na가 같이 움직여서 NA 데이터 처리
+
+**gather( )로 여러 열을 한 열 + 구분변수로 만들기(wide->long)**
+gather(데이터이름, 새기준변수이름, 새변수이름, 모을 변수들)
+aggr_wide2 %>% gather(Category, Count, 족발보쌈, 중국음식, 피자, 치킨)
+aggr_long = aggr_wide2 %>% gather(Category, Count, -(시군구:요일))
+spread =>aggr은 관측치 12845개 / gather() => aggr_long은 15788개
+spread로 인해 row별 특정 col에 데이터가 없어서 NA가 생성되었으며, 이를 gather할 경우 각각 한 행으로 인식하여 데이터 개수가 늘어난 것으로 보임
+
+**drop_na()** - NA가 있는 모든 행 삭제
+aggr_wide %>% drop_na(치킨, 피자)
+Tip. 무조건 날리진 않고 NA데이터가 현저히 적을 때 na를 날림 (1%미만일 때 <-강사님 기준)
+NA이라고 무조건 날려버리면 잘못된 결론이 도출될 수 있음.
+
+**complete( )로 빠져있는 조합 채우기**
+1. ex) 3947 != 4200 = 25(시군구)*24(시간대)*7(요일)
+현재 데이터는 3947개 != 변수들의 모든 경우의 수 4200개
+버어 있는 모든 값(경우의 수)를 채울 때 사용
+aggr_wide2 %>% complete(시군구, 시간대, 요일, fill=list(족발보쌈=0, 중국음식=0, 치킨=0, 피자=0))
+fill => 비어있는 경우 변수별 적용 값 지정
+
+**substr() 문자 추출 후 변수명 변경**
+기존 데이터에 ‘~’같은 문자가 있었는데 데이터를 작업할 때는 간단한 변수명이 좋음
+substr(names(subway_2017)[6:25], 1, 2)  첫 두글자만 선택
+paste0('H', substr(names(subway_2017)[6:25], 1, 2))  앞에 'H'를 붙임
+names(subway_2017)[6:25] <- paste0('H', substr(names(subway_2017)[6:25], 1, 2))
+
+변수이름 업데이트
+**library(stringr)**
+
+string1 <- "This is a string"
+string2 <- "If I want to include a 'quote' inside a string, I use single quotes"
+string2 <- 'If I want to include a "quote" inside a string, I use single quotes'
+큰 따움표(“”)와 작은 따움표(‘’) 위치 확인
+큰 따움표 안에 작은 따움표 => 작은 따움표로 인식
+작은 따움표 안의 큰 따움표 => 특수문자로 인식
+R에서 sql을 쿼리로 paste0 불러올 때 불러오는데, 이 때 문자를 특수문자로 인식하는 경우도 발생
+
+**x <- c("apple", "banana", "pear")**
+str_detect(데이터, 패턴)
+
+str_detect(x, "e")
+데이터에 패턴 유무에 따라 True & False 형으로 반환
+
+str_count(데이터, 패턴)
+str_count(x,"a")
+데이터에 존재하는 패턴 개수 반환
+
+str_which(데이터, 패턴)
+str_which(x,"e")
+데이터에 패턴 위치 반환, 벡터 데이터일 경우 몇 번째 value에 패턴이 있는지 반환
+
+str_locate(데이터, 패턴),
+str_locate(x,"a")
+데이터에 패턴과 똑같은 첫 번 째 문자의 위치 반환
+start_num과 end_num은 데이터 내의 패턴 위치 반환하며, 패턴의 문자가 1개면
+start_num = end_num / 2개면 end_num = start_num +1
+
+**str_sub(데이터, 시작, 끝)**
+x <- c("Apple", "Banana", "Pear")
+
+str_sub(x, 1, 3)
+데이터에 속한 value별 문자의 1~3번째 문자 반환
+
+str_subset(데이터, 패턴)
+str_subset(x,"r")
+subset(데이터, 추출값), subset자체가 특정 데이터를 추출하여 반환하는 함수이므로,
+데이터에 패턴 속한 value를 추출하여 반환
+
+**str_replace(데이터,찾는변수,바꿀변수)**
+str_replace("apple","p","l") -apple에 첫 번째 p를 l로 변경
+str_replace_all("apple","p","l") -apple에 모든 p를 l로 변경
+str_to_lower("STRING") 전체를 소문자로 변환
+str_to_upper("string") 전체를 대문자로 변환
+str_to_title("string") 첫 영어 문자를 대문자로 변환
+SQL에서와 비슷한 함수
+
+**타입변환**
+as.factor(x) : 주어진 객체 x를 팩터로 변환
+as.numeric(x) : 주어진 객체 x를 숫자를 저장한 벡터로 변환
+as.character(x) : 주어진 객체 x를 문자열을 저장한 벡터로 변환
+as.matrix(x) : 주어진 객체 x를 행렬로 변환
+as.data.frame(x) : 주어진 객체 x를 데이터 프레임으로 변환
+나중에 for으로 형태변환할 때 if(데이터형태=true) 면 ~~ 이런식으로도 사용
+
+**날짜데이터**
+**install.packages('lubridate')**
+**library(lubridate)**
+**as.Date('2020-01-01') 첫 항 제외하고 오류, 정확한 연월일 포맷으로 작성해야 함**
+as.Date(2020-01-01)
+as.Date(20200101)
+as.Date('20200101')
+ymd('20200110')
+mdy('January 10th 2020')
+dmy('10-jan-2020')
+ymd('820327')
+ymd(820327)
+lubridate에 들어 있는 ymd() 함수를 통해서 보다 유연하게 사용가능
+
+year(date_test)
+month(date_test)
+day(date_test)
+week(date_test)
+wday(date_test)
+wday(date_test,label = T)
+날짜로 각종 계산가능
+
+date_test + days(100) 100일 후
+date_test + months(100) 100개월 후
+date_test + years(100) 100년 후
+
+**is.na(df) :** NA값 위치 출력, (TRUE & FALSE)
+**table(is.na(df)) :**  df에 있는 TRUE,FALSE 값 개수를 파악해줌
+**na.omit(df)**
+
+모든 변수에 결측치 없는 데이터 추출, 무조건 na를 없애는건 좋은 방법은 아님!
+drop_na(df)와 동일한 결과, 단 drop_na는 행 번호 재지정 / na.omit은 행 번호 유지
+df$score <- ifelse(is.na(df$score), 4, df$score)
+결측치 대체, 분석가에 판단에 따라 대체값 지정, 평균값, 중앙값, 최빈값 등등
+
+**iinstall.packages("zoo")**
+**library(zoo)**
+
+na.locf0(c(NA, NA, "A", NA, "B"), fromLast = FALSE) 결측치를 좌측 값으로 대체
+[1] NA NA "A" "A" "B“
+
+na.locf0(c(NA, NA, "A", NA, "B"), fromLast = TRUE) 결측치를 우측 값으로 대체
+[1] "A" "A" "A" "B" "B"
+
+### **질문토의**
+##1.5 complete( )로 빠져있는 조합 채우기
+nrow(aggr_wide2)
+3947! = 4200 = 25(시군구)*24(시간대)*7(요일)
+aggr_wide2 %>% complete(시군구, 시간대, 요일)
+aggr_wide2 %>% complete(시군구, 시간대, 요일, fill=list(족발보쌈=0, 중국음식=0, 치킨=0, 피자=0))
+
+질문내용 : 앞에서 aggr_wide2 부분의  row가 3947개라는 것은 처음부터 시군구, 시간대, 요일이 (4200개)가 아닌 상태였고, 시군구, 시간대, 요일 (4200개) 상태를 기준으로 fill=list를 적용해서 빈값까지 채워주는 의미인지?  
+aggr_wide2는 spread 함수를 사용하여 category 행 데이터를 족발보쌈, 중국음식, 치킨, 피자 분류한 데이터인데, 특정 시간대( ex) 새벽 4시)의 경우 족발보쌈, 중국음식 등 하나의 음식도 주문 건수가 없어서 데이터 자체가 없다. 그래서 모든 경우의 수 대비 실제 row 개수가 적은 경우이다.
+
+변수이름 업데이트 
+names(subway_2017)
+질문내용 : 결과값이 H05~H24까지 나오는데 또 적용하게 되면 HH 혹은 HHH형식으로 나오는데 다시 되돌릴 수 있는 방법은? 
+subway_2017은 5~6, 6~7 등과 같은 시간대를 paste0( )를 사용하여 H05~H24로 문자를 변경하여 저장하였으므로,
+HH05~HH24를 H05~HH24로 변경을 하고자 하면 다시 csv 파일을 불러와서 변환해야 함.
+
+x <- c("apple", "banana", "pear")
+str_locate(x,"a")
+start end
+[1,]     1   1
+[2,]     2   2
+[3,]     3   3
+
+str_locate(date, 변수) 함수에서는 변수와 같은 문자의 위치를 반환하는 함수로,
+x 벡터에서 각 value의 문자열에서 첫번째 a 위치 반환함.
+만약 str_locate("aabbcdbbb", "cd")로 할 경우 ⇒ start num = 5 / end num = 6
+
+### **과제해결**
+words를 모두 대문자로 바꾼 상태에서 'AB'를 포함한 단어의 개수는 총 몇개이며
+어떤단어들이 있는가?
+sum(str_detect(str_to_upper(words), "AB"))
+
+질문내용 : (str_to_upper(words), "AB")를 str_detect에 적용하면 T,F로 결과값이 나오고,
+           그 결과값의 개수가 몇 개인지라고 이해하면 되는지? 
+
+str_detect() 시 존재하면 T / 아니면 F이며, 이를 숫자로 변환하면 T=1 / F=0이 됨
