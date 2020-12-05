@@ -9,7 +9,7 @@ library(openxlsx)
 #일부 데이터를 합쳐서 한번에 확인할 경우에도 사용
 install.packages("plyr")
 library(plyr)
-
+plyr::
 
 # dplyr 패키지 설치
 ##sql의 select where 등과 같은 명령어로 sql을 토대로 만든 패키지
@@ -38,5 +38,18 @@ library(stringr)
 install.packages('lubridate') #시간 데이터를 깔끔하게 정리해주는 패키지
 library(lubridate)
 
-install.packages("zoo") #na.ofcf0 함수 내장 패키지
+install.packages("zoo") #na.locf0 함수 내장 패키지
 library(zoo)
+
+# ggplot2 패키지 설치, 불러오기 
+install.packages('ggplot2')
+library(ggplot2)
+#R내장 시각화 함수가 있으나 성능이 떨어지는데
+#ggplot과 같은 시각화 패키지들로 인해 파이썬보다 시각화 성능 우수
+
+
+# RColorBrewer 패키지의 활용
+install.packages('RColorBrewer')
+library(RColorBrewer)
+#팔레트, 보기좋은 특정 색상의 조합을 쓸 수 있음
+## http://colorbrewer2.org/
