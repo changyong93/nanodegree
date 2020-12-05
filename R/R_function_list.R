@@ -342,3 +342,112 @@ na.locf0(c(NA, NA, "A", NA, "B"), fromLast = FALSE) # 1
 na.locf0(c(NA, NA, "A", NA, "B"), fromLast = TRUE) # 2
 ## [1] "A" "A" "A" "B" "B"
 ## NA가 있을 경우 오른쪽 데이터를 그대로 사용
+
+#----------------------------------------------------------------------------------
+#시각화
+
+options("scipen" = 100) #지수옵션 풀기 "scipen=4이상이면 다 지수풀기기
+options(scipen = 100) #괄호 안해도 됌
+options("scipen" = 0) #지수옵션
+
+## RColorBrewer 패키지의 함수 - 팔레트 색상 조합 사용
+# 패키지 내 모든 색상조합 확인  
+display.brewer.all()  ## 색상조합 이름 확인
+brewer.pal(9, 'Set1') #brewer.pal(개수, 조합명) 조합에서 몇개의 색상을 랜덤으로 가져올지
+
+## ggplot2 패키지, 부를땐 ggplot
+aes(x = ) #x 지정
+aes(y = ) #y축 지정
+aes(color = ) #color 지정 - 산점도 등
+aes(fill = ) #color 지정 - boxplot, bar
+#color, fill 헷갈리면 둘 다 기입
+aes(shape = ) #데이터 형상
+aes(size = ) #사이즈
+aes(alpha = ) #투명도
+
+facet_grid(~변수명) #특정 변수로 구분하여 플랏 생성
+                    #변수명이 year명 년도별 플랏 생성됨
+
+geom_point() #산점도
+geom_boxplot()#박스플랏
+geom_bar()#바플랏
+geom_histogram()#히스토그램
+geom_tile # 히트맵
+
+#그래프 테마(바탕)
+theme_bw()
+theme_classic()
+theme_dark()
+theme_light()
+theme_linedraw()
+theme_minimal()
+theme_test()
+theme_void()
+
+#범례제목 수정
+labs(fill = "범례명")
+
+#그래프에 숫자 넣기
+#막대형 기준
+#그래프가 누적값일 경우, y=변수1에서 변수1의 누적값 위치 저장
+mutate(pos = cumsum(변수1)- 0.5*변수1)
+#단 group_by & arrange로 그래프 누적 순으로 행을 맞춰준 후 누적합 구하기
+geom_text(aes(label=변수1, y=pos) size=10) #size : 글자사이즈
+
+#facet_grid로 누적값별로 다 그래프로 나눈 경우
+#누적위치 pos 생성 불필요
+geom_text(aes(label=변수1),vjust=+-숫자)
+#개별일 경우 label만 입력해도 적당한 위치에 값이 생성되는데
+#바가 수직형일 경우 vjust = 값(+-으로 위치 조정해도 되고
+#aes(label = 변수1, y=변수1+ 값(+-)으로 위치 조정 가능
+#단 aes안에 있을 경우 값 기준은 y축 unit 기준, aes밖이면 그래프 좌표기준
+
+# 범례 테두리 설정
+theme(legend.position = "top")
+theme(legend.position = "bottom")
+theme(legend.position = c(0.9,0.7))
+theme(legend.position = 'none')
+##이건 그래프마다 정해야 하서 수작업해야 하는 단점이 있음
+
+#축 변경
+# 이산형 - deiscreate()
+# 연속형 - continuous()
+scale_x_discrete(labels = c("하","중","상")) +
+scale_y_continuous(breaks = seq(0,8000,by = 1000))
+
+#색변경
+#범주형
+scale_fill_brewer(palette='Set1') #box, bar
+scale_fill_brewer(palette='Set1',direction = -1) #box, bar 색상 반전
+scale_fill_manual(values = c('red','royalblue','tan')) #bar, boxplot,...
+scale_fill_manual(values = rev(c('red','royalblue','tan'))) #bar, boxplot,... 색상 반전
+#manual은 범주 개수만큼 설정해야 함
+#연속형
+scale_fill_distiller(palette='Set1')#heatmap #팔레트 이용
+scale_fill_distiller(palette='Set1',trans="reverse") #heatmap #색반전
+scale_fill_gradient(low='white', high='#FF6600') #heatmap #처음과 끝 색 지정
+
+#x,y축 바꾸기
+coord_flip()
+
+#그래프 제목 추가
+ggtitle()
+
+#축 & 범례 텍스트 크기 및 배치 조정
+theme(legend.position = 'none',
+      axis.text.x = element_text(size = 15,angle = 90),
+      axis.text.y = element_text(size = 15),
+      legend.text = element_text(size = 15))
+
+# 그래프에 평행선, 수직선, 대각선을 그릴 수 있는 명령어
+
+ggplot(NULL) +
+  geom_vline(xintercept = 10, 
+             col = 'royalblue', size = 2) +
+  geom_hline(yintercept = 10, linetype = 'dashed', 
+             col = 'royalblue', size = 2) +
+  geom_abline(intercept = 0, slope = 1, col = 'red',
+              size = 2) +
+  theme_bw()
+
+
