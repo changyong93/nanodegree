@@ -524,11 +524,11 @@ from (select to_char(a.order_date, 'yyyy') sale_year
 group by sale_year
 order by 1;
 
-select *
+select sale_year, nvl(model_2016,0), nvl(model_2017,0), nvl(model_2018,0)
 from(select to_char(a.order_date, 'yyyy') sale_year, c.model_year, nvl(sum(b.quantity*b.list_price),0) sum_amt
 from orders a, order_items b, products c
 where b.order_id = a.order_id
 and b.product_id = c.product_id
 group by to_char(a.order_date, 'yyyy'), c.model_year)
-pivot(sum(sum_amt) for model_year in ('2016','2017','2018'))
+pivot(sum(sum_amt) for model_year in (2016 as model_2016, 2017 as model_2017, 2018 as model_2018))
 order by 1;
