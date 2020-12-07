@@ -52,6 +52,13 @@ select * from emp where salary > 5000 order by salary desc; -- salary 5000이상으
                                                             --여러개일 경우 salary desc, first_name; 혹은 2 desc ,3, phone_number desc ;도 가능(번호는 좌측부터 컬럼 순서대로)
 select * from employees order by salary desc; -- asc(오름차순)default, 생략 가능 / desc내림차순
 
+user_objects -- 모든 객체 정보
+user_tables -- 테이블 정보
+user_indexes -- 인덱스 정보
+user_constraints -- 제약 조건
+user_tab_cols -- 테이블과 해당컬럼 정보
+user_views -- 뷰 정보
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*modify*/
 alter table emp modify col1 number not null; --컬럼 정보 수정
