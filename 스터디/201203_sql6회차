@@ -1,0 +1,31 @@
+keyword 정리
+https://www.notion.so/SQL-6-12cbbd015c004c048df06f6d902294da
+
+예제1.4) P20
+SELECT a.employee_id,
+a.first_name || ' ' || a.last_name emp_name,
+dept.department_name,
+loc.street_address, loc.city, loc.country_name
+FROM employees a
+,( SELECT *
+FROM departments b ) dept
+,( SELECT l.location_id, l.street_address,
+l.city, c.country_name
+FROM locations l,
+countries c
+WHERE l.country_id = c.country_id
+) loc
+WHERE a.department_id = dept.department_id
+AND dept.location_id = loc.location_id
+ORDER BY 1;
+
+질문1>SELECT * 만 기재되어 있는데 연결된 조인을 위해 사용된 department_id, location_id 가 기재되어야 하는게 아닌지?
+→ 
+특정 열만 적어도 되고, 필요한 열만 적어도 되는데,
+전체를 불러오면 너무 많으니까
+
+질문2 >인라인 뷰 P21,P22에서 말하고자 하는 의미는?
+→LATERAL 키워드 사용 시 서브쿼리 내에서 조인 가능 스칼라 서브쿼리처럼 동작
+- 과거 서브쿼리 내에서는 메인 쿼리 참조가 불가능 (조인 불가)
+- 12c 부터 추가된 기능
+- 서브쿼리 앞에 LATERAL 명시할 경우 메인 쿼리 컬럼 참조 가능
