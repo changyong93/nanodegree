@@ -1,0 +1,238 @@
+Sys.setenv(JAVA_HOME = 'C:/Program Files/Java/jre1.8.0_271')
+
+rm(list = ls())
+# install.packages(c("dplyr", "httr", "jsonlite", "rJava", "RSelenium", "stringr")
+# install.packages("rJava")
+# install.packages("RSelenium")
+library(dplyr)
+library(httr) #html 처리
+library(rvest)
+library(jsonlite)
+library(rJava)
+library(RSelenium) #javascript에서 작성된 페이지에서 텍스트를 가져오기 위한 패키지
+                   #webdriver라는 것을 통해 디바이스에 설치된 브라우저를 제어
+library(stringr)
+
+res_yui <- GET(url = 'https://gall.dcinside.com/mgallery/board/lists/',
+               query = list(id = 'aragakiyui',
+                            page ='1'))
+
+
+
+content(res_yui)
+링크_각키 <- c()
+링크_각키.tmp <- res_yui %>% 
+  read_html() %>% 
+  html_nodes('tr.ub-content.us-post') %>%
+  html_nodes('td.gall_tit.ub-word') %>% 
+  html_nodes('a:nth-child(1)') %>% 
+  html_attr('href') %>% 
+  unique()
+
+  if(length(링크_각키.tmp)==0){
+    링크_각키 <- append(링크_각키,"수동확인")
+  }else{
+    링크_각키 <- append(링크_각키,링크_각키.tmp)
+  }
+
+링크_각키 <- paste0('https://gall.dcinside.com',링크_각키)
+
+
+##이제 우리는 수집한 링크를 토대로 게시글의 Element를 수집
+##참고 페이지에서는 링크 수집 후 element 수집은 셀레니움을 선호
+
+
+##selenium(셀레니움)을 켭니다
+##cmd를 켠 상태에서
+##1) cd C:\r-selenium
+##2) java -Dwebdriver.gecko.driver="geckodriver.exe" -jar selenium-server-standalone-4.0.0-alpha-1.jar -port 4445
+##입력후 엔터로 실행합니다
+
+##그리고 R에서 아래 명령어를 실행
+
+remDr <- remoteDriver(remoteServerAddr="localhost",
+                      port=4445L,  
+                      browserName="chrome")
+#cmd에서 상기 1),2)과정 후 cmd를 켜놔야 함
+remDr$open()
+#셀레니움으로 자동화할 수 있는 페이지
+
+#수집하려는 요소의 벡터공간 사전 생성
+제목_각키 <- c()
+작성자_각키 <- c()
+날짜_각키 <- c()
+본문_각키 <-c()
+주소_각키 <-c()
+
+#각키갤 첫번째 게시글로 이동
+remDr$navigate(링크_각키[1])
+
+#게시글의  html요소를 읽기
+body <- remDr$getPageSource()[[1]]
+body <- body %>% read_html()
+
+#제목을 수집
+제목.각키.tmp <- body %>%  
+  html_nodes("span.title_subject") %>%  
+  html_text() 
+
+## 수집한 제목 없을 경우 "수동확인", 제대로 수집한 경우는 "제목_각키"벡터 공간에 저장합니다
+if (length(제목.각키.tmp) == 0) { 
+  제목_각키 <- append(제목_각키, "수동확인") 
+} else { 
+  제목_각키 <- append(제목_각키, 제목.각키.tmp) 
+}  
+
+#작성자 수집
+작성자_각키.tmp <- body %>%  
+  html_nodes("div.fl") %>% 
+  html_nodes("span.nickname") %>% 
+  html_nodes("em") %>% 
+  html_text() 
+if(length(작성자_각키.tmp)==0){
+  작성자_각키 <- append(작성자_각키,"수동확인")
+} else {
+  작성자_각키 <- append(작성자_각키,작성자_각키.tmp)
+}
+
+
+#날짜 수집
+날짜.각키.tmp <- body %>%  
+  html_nodes("span.gall_date") %>%  
+  html_text() 
+
+if (length(날짜.각키.tmp) == 0) { 
+  날짜_각키 <- append(날짜_각키, "수동확인") 
+} else { 
+  날짜_각키 <- append(날짜_각키, 날짜.각키.tmp)
+}
+
+#본문 수집
+본문.각키.tmp <- body %>%  
+  html_nodes("div.writing_view_box") %>%  
+  html_text() 
+
+
+if (length(본문.각키.tmp) == 0) { 
+  본문_각키 <- append(본문_각키, "수동확인") 
+} else { 
+  본문_각키 <- append(본문_각키, 본문.각키.tmp) 
+}
+본문_각키 <- str_replace_all(본문_각키,"\n","")
+본문_각키 <- str_replace_all(본문_각키,"\t","")
+
+#주소
+주소_각키 <- append(주소_각키, 링크_각키[1])
+#for문 이용 시 1을 i로 바꾸기
+i <- 1
+rm(list = ls())
+
+링크_각키 <- c()
+for(i in 1:10){
+  tryCatch({
+    res_yui <- GET(url = 'https://gall.dcinside.com/mgallery/board/lists/',
+                   query = list(id = 'aragakiyui',
+                                page =i))
+
+    cat(i, '페이지 수집 중. 상태코드는', status_code(x = res_yui), '입니다.\n')
+
+    링크.각키.tmp <- res_yui %>%
+      read_html() %>%
+      html_nodes('tr.ub-content.us-post') %>% 
+      html_nodes('td.gall_tit.ub-word') %>%
+      html_nodes('a:nth-child(1)') %>%
+      html_attr('href') %>%
+      unique()
+      
+    
+
+    if (length(링크.각키.tmp) == 0) {
+      링크_각키 <- append(링크.각키, "수동확인")
+    } else {
+      링크_각키 <- append(링크_각키, 링크.각키.tmp)
+    }
+    Sys.sleep(time = 1)  #### (중요!) 반복되는 작업으로 디도스(DDOS)로 오인 받지 않을려면 반드시 넣기
+
+  }
+  ,error = function(e) cat("불러올 수 없습니다!\n") )
+}
+
+링크_각키 <- paste0("https://gall.dcinside.com",링크_각키) 
+
+remDr <- remoteDriver(remoteServerAddr="localhost",  
+                      port=4445L,  
+                      browserName="chrome") 
+Sys.sleep(time = 5)
+remDr$open() 
+
+제목_각키 <- c()
+작성자_각키 <- c()
+날짜_각키 <- c()
+본문_각키 <-c()
+주소_각키 <-c()
+
+for (i in 1:length(링크_각키)){ 
+  tryCatch({ 
+    
+    remDr$navigate(링크_각키[i]) 
+    body <- remDr$getPageSource()[[1]] 
+    body <- body %>% read_html() 
+
+    cat('현재',i,'자료' ,' 수집 중! \n')  
+
+    ## 제목 
+   제목.각키.tmp <- body %>%  
+      html_nodes("span.title_subject") %>%  
+      html_text() 
+    
+    if (length(제목.각키.tmp) == 0) { 
+      제목_각키 <- append(제목_각키, "수동확인") 
+    } else { 
+      제목_각키 <- append(제목_각키, 제목.각키.tmp) 
+    }  
+
+    ## 작성자 
+    작성자.각키.tmp <- body %>%  
+      html_nodes("div.fl") %>%  
+      html_nodes("span.nickname") %>%  
+      html_nodes("em") %>% 
+      html_text() 
+    
+    if (length(제목.각키.tmp) == 0) { 
+      작성자_각키 <- append(작성자_각키, "수동확인") 
+    } else { 
+      작성자_각키 <- append(작성자_각키, 작성자.각키.tmp) 
+    }  
+
+    ## 날짜 
+    날짜.각키.tmp <- body %>%  
+      html_nodes("span.gall_date") %>%  
+      html_text()
+    
+    if (length(날짜.각키.tmp) == 0) { 
+      날짜_각키 <- append(날짜_각키, "수동확인") 
+    } else { 
+      날짜_각키 <- append(날짜_각키, 날짜.각키.tmp) 
+    }  
+
+    ## 본문 
+    본문.각키.tmp <- body %>%  
+      html_nodes("div.writing_view_box") %>%  
+      html_text() 
+
+    if (length(본문.각키.tmp) == 0) { 
+      본문_각키 <- append(본문_각키, "수동확인") 
+    } else { 
+      본문_각키 <- append(본문_각키, 본문.각키.tmp) 
+    }  
+
+    ## 주소(URL) 
+    주소_각키 <- append(주소_각키, 링크_각키[i]) 
+   Sys.sleep(time = 1)  #### (중요!) 반복되는 작업으로 디도스(DDOS)로 오인 받지 않을려면 반드시 넣기
+    
+  }, error = function(e) cat("불러올 수 없습니다!\n")) 
+}
+본문_각키 <- str_replace_all(본문_각키,"\n","")
+본문_각키 <- str_replace_all(본문_각키,"\t","")
+df_각키 <- data.frame(제목_각키, 작성자_각키, 날짜_각키, 본문_각키, 주소_각키)
+write.csv(df_각키,'crawling_test.csv',row.names=F)
