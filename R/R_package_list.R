@@ -53,3 +53,22 @@ install.packages('RColorBrewer')
 library(RColorBrewer)
 #팔레트, 보기좋은 특정 색상의 조합을 쓸 수 있음
 ## http://colorbrewer2.org/
+
+install.packages("sampling")
+library(sampling) #샘플링 패키지로 층화추출 시 많이 사용
+
+install.packages("psych")
+library(psych) #pairs.panels() 데이터별 상관관계 그래프 출력
+
+install.packages("PerformanceAnalytics");
+library(PerformanceAnalytics) 
+#chart.Correlation() 내장 패키지로, pairs.panels와 같으나 조금 더 가시성이 있음
+
+install.packages("corrplot")
+library(corrplot) #상관관계 그래프로, psych나 performanceanalytics랑 같음, 단, 상관관계에 따라 다양하게 표현가능
+
+install.packages("laercio")
+library(laercio)#F검정 사후분석 LDuncan, tukeyHSD
+
+install.packages("gmodels")
+library(gmodels)#CrossTable() 카이제곱 분석표가 출력력
