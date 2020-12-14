@@ -27,7 +27,7 @@ cor(acs2,use="na.or.complete") #na 제외하고 계산하는 유수 명령어
 windows()
 #산점도행렬
 pairs.panels(acs2) #psych 패키지 내장 함수, 그래프는 chart.Correlation이 더 보기 좋게 나옴
-                   #cor의 유수기능이 내장되어 있어 따로 결측치 처리안해도 됌
+#cor의 유수기능이 내장되어 있어 따로 결측치 처리안해도 됌
 
 
 
@@ -35,12 +35,12 @@ pairs.panels(acs2) #psych 패키지 내장 함수, 그래프는 chart.Correlatio
 library(PerformanceAnalytics)
 #산점도행렬
 chart.Correlation(acs2, histogram=TRUE, pch=19) #pairs.panels과 같으나 조금 더 가시성 좋게 표현
-                                                #histogram F 시 히스토그램 대신 중복인 것은 데이터 이름 출력
-                                                #pch는 포인트 종류
-                                                #상관관계에서 귀무/대립 가설은 상관관계가 '있다'/'없다'인데, 
-                                                #별표는 유의확률로 별이 하나면 유의수준 0.05 기준으로 유의하며 값은 독립이다는 의미.
-                                                #상관관계에서는 크게 안봐도 되는게, 값이 작으면 유의확률이 작아므로 별표는 크게 의미 두지 말고 값을 확인 
-                                               #cor의 유수기능이 내장되어 있어 따로 결측치 처리안해도 됌
+#histogram F 시 히스토그램 대신 중복인 것은 데이터 이름 출력
+#pch는 포인트 종류
+#상관관계에서 귀무/대립 가설은 상관관계가 '있다'/'없다'인데, 
+#별표는 유의확률로 별이 하나면 유의수준 0.05 기준으로 유의하며 값은 독립이다는 의미.
+#상관관계에서는 크게 안봐도 되는게, 값이 작으면 유의확률이 작아므로 별표는 크게 의미 두지 말고 값을 확인 
+#cor의 유수기능이 내장되어 있어 따로 결측치 처리안해도 됌
 #킹콩 data의 추가 -> 데이터 하나의 큰 영향
 dat<-data.frame(
   a=c(15,20,25,27,31,25,23,23,42,12,34,23,40),
@@ -48,15 +48,15 @@ dat<-data.frame(
 )
 plot(dat$a,dat$b)
 abline(lm(dat$b~dat$a)) #lm : linear Regression model
-                        #각 점들과 선의 오차가 최소로 되는 선을 긋는 것
+#각 점들과 선의 오차가 최소로 되는 선을 긋는 것
 cor(dat$a,dat$b)
 
 
 #outlier 추가
 dat[14,]<-c(200,230) #상관계수도 각 값과의 분산을 기반으로 하는데 아웃라이어가 있으면 직선의 형태가 달라지므로, 아웃라이어 처리가 중요함
-                     #IQR*1.5 이상은 뺴든가 하는 방식으로 처리를 고려해야 함
-                     #넣은 상태에서 하면 바이어스가 있을 수 있음
-                     #평균이랑 비슷한 의미
+#IQR*1.5 이상은 뺴든가 하는 방식으로 처리를 고려해야 함
+#넣은 상태에서 하면 바이어스가 있을 수 있음
+#평균이랑 비슷한 의미
 plot(dat$a,dat$b)    
 abline(lm(dat$b~dat$a))
 cor(dat$a,dat$b)
@@ -127,8 +127,8 @@ ggplot(t_data,aes(x=factor(group),y=score,fill=factor(group))) + geom_boxplot()
 
 #정규성 검정 -  shapiro
 shapiro.test(t_data$score) #p-value가 0.05이상이면 귀무가설 채택 => 정규성띄움
-                           #w값은 검정통계량이라 하는데 알고만 넘어가면 됌
-                           #https://m.blog.naver.com/PostView.nhn?blogId=pmw9440&logNo=221466236755&proxyReferer=https:%2F%2Fwww.google.com%2F
+#w값은 검정통계량이라 하는데 알고만 넘어가면 됌
+#https://m.blog.naver.com/PostView.nhn?blogId=pmw9440&logNo=221466236755&proxyReferer=https:%2F%2Fwww.google.com%2F
 
 
 #등분산성 검정(F검정)
@@ -142,9 +142,9 @@ var.test(t_data_1$score,t_data_2$score)  #p-value가 0.05이상이므로 귀무�
 
 #1번 t.test방법(T검정)
 t.test(t_data_1$score,t_data_2$score,var.equal=T) #var.equal = T가 Default
-                                                  #0.05이하므로 드 그룹간 차이가 발생한다
-                                                  #t는 검정통계량 값이라는데 다시 찾아볼 것
-                                                 #https://m.blog.naver.com/PostView.nhn?blogId=sendmethere&logNo=221333164258&categoryNo=7&proxyReferer=https:%2F%2Fwww.google.com%2F
+#0.05이하므로 드 그룹간 차이가 발생한다
+#t는 검정통계량 값이라는데 다시 찾아볼 것
+#https://m.blog.naver.com/PostView.nhn?blogId=sendmethere&logNo=221333164258&categoryNo=7&proxyReferer=https:%2F%2Fwww.google.com%2F
 
 #2번 t.test방법
 t.test(score~group,data=t_data,var.equal=T) #score(값)~group(그룹) 순서 지켜야 함
@@ -242,8 +242,8 @@ tapply(anova_data$score,anova_data$group,max)
 
 #등분산성 test
 bartlett.test(score~as.factor(group),data=anova_data) #factor로 안 되있을까봐 factor로 묶는거고
-                                                      #세그룹 이상이므로 앞의 형태로 기입해야 함
-                                                      #T검정이랑 과정은 같고 사후 검정이 있냐없냐의 차이이
+#세그룹 이상이므로 앞의 형태로 기입해야 함
+#T검정이랑 과정은 같고 사후 검정이 있냐없냐의 차이이
 
 #oneway.test
 oneway.test(score~group,data=anova_data,var.equal = T)
@@ -365,7 +365,7 @@ chisq.test(table(acs$sex,acs$obesity))
 # 보통 2X2 행렬에서 자주 사용함
 
 
-install.packages("gmodels")
+# install.packages("gmodels")
 library(gmodels)
 
 CrossTable(acs$sex,acs$obesity,chisq=T,prop.t=F)
@@ -411,26 +411,38 @@ mosaicplot(t(xtab),col=c("deepskyblue", "brown2")) #히트맵이랑 유사한 �
 
 ################## 카이제곱 연습해보기 ###################
 # 1
-install.packages("MASS")
+# install.packages("MASS")
 library(MASS)
 data(survey)
 head(survey)
 # survey 데티어에서 Sex변수와 Smoke가 연관이 있는지 검정하여라
 # 시각화 포함
-aa <- survey[,c(1,9)]
+library(tidyr)
 library(dplyr)
-aa <- tidyr::drop_na(aa)
-aa$
-chisq.test(aa$sex,aa$Smoke,correct = T)
-table(survey$sex,survey$Smoke)
-length(survey$Smoke)
-summary(survey)
-survey_t <- as.character(survey$sex)
-
+survey_t <- survey %>% 
+  drop_na(Sex, Smoke)
+chisq.test(survey_t$Sex,survey_t$Smoke)
+chisq.test(survey_t$Sex,survey_t$Smoke,correct = T)
+chisq.test(table(survey_t$Sex,survey_t$Smoke),correct = T)
+CrossTable(survey_t$Sex,survey_t$Smoke,chisq = T)
+survey_t %>% 
+  count(Sex,Smoke) %>% 
+  ggplot(aes(x=Sex, y=n, fill=Smoke))+
+  geom_bar(stat="identity", position='dodge')
+mosaicplot(survey_t$Sex,survey_t$Smoke,col=c("deepskyblue", "brown2"))
 # 2
-delivery = read.csv('SKT.csv', fileEncoding='UTF-8')
-head(delivery)
+dv = read.csv('SKT.csv', fileEncoding='UTF-8')
+head(dv)
 # 요일별 업종의 차이가 있는지 검정하여라
-
+chisq.test(dv$요일,dv$업종,correct=T)
+CrossTable(dv$요일,dv$업종,chisq=T,prop.t=F)
+table(dv$요일,dv$업종)
+dv$요일 <- factor(dv$요일,
+                levels = c("일","월","화","수","목","금","토"))
+dv %>% 
+  count(요일,업종) %>% 
+  ggplot(aes(x=요일,y=n,fill=업종))+
+  geom_bar(stat='identity', position = 'dodge')
+mosaicplot(dv$요일,dv$업종,col=c("deepskyblue", "brown2"))
 
 #######################################################
