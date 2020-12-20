@@ -885,6 +885,157 @@ subway2 %>%
   theme(axis.text.x=element_text(angle=60))+
   scale_y_continuous(breaks = seq(0,270000000,30000000))+
   geom_text(aes(label=승객수,y=승객수),color='black')
-  ggtitle('시간대별 승객수')+
+  ggtitle('시간대별 승객수')
 options(scipen=0)
 
+#--------------------------------------------------------------------------------
+#####Day 7#####
+rm(list = ls())
+library(dplyr)
+library(plyr)
+library(tidyr)
+library(ggplot2)
+library(zoo)
+library(openxlsx)
+library(lubricate)
+
+##기초통계
+mean(iris$Sepal.Length)
+var(iris$Sepal.Length)
+sd(iris$Sepal.Length)
+summary(iris$Sepal.Length)
+quantile(iris$Sepal.Length,seq(0,1,0.1))
+
+x <- factor(c("a", "b", "c", "c", "c", "d", "d"))
+table(x)
+which.max(table(x))
+
+#비율
+x1 <- data.frame(x1=sample(1:5,20,replace = T),x2=sample(1:5,20,replace = T))
+table(x1)
+prop.table(table(x1))
+prop.table(table(x1),1)
+prop.table(table(x1),2)
+
+#추출
+sample(1:5,5,replace=T)
+library(sampling)
+strata(data = iris,stratanames = "Species",size = c(1,1,3),method = "srswor")
+
+#이산확률분포
+rb <- sample(x = c(0,1),size = 400,replace = T,prob = c(0.3,0.7))
+table(rb)/400*100
+
+ggplot(NULL)+geom_bar(aes(x=as.factor(rb),fill=as.factor(rb)))+
+  scale_x_discrete(labels = c("실패","성공"))+
+  xlab("")+ylab("")+labs(fill='실패vs성공')
+
+rbinom(n = 100,size = 5,prob = 0.5)
+table(rbinom(n = 100,size = 5,prob = 0.5))
+data.frame(n=rbinom(n=30,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+data.frame(n=rbinom(n=40,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+data.frame(n=rbinom(n=100,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+data.frame(n=rbinom(n=500,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+data.frame(n=rbinom(n=1000,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+data.frame(n=rbinom(n=10000,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+data.frame(n=rbinom(n=100000,size=5,prob=0.5)) %>% ggplot(aes(x=n))+geom_bar()
+
+dbinom(x = 0:6,size = 5,prob = 0.5)
+pbinom(q = 2,size = 5,prob = 0.5)
+qbinom(p = 0.8,size = 5,prob = 0.5)
+
+#연속확률분포
+r <- rnorm(n = 100000,mean = 0,sd = 1)
+mean(r); sd(r)
+ggplot(NULL)+geom_histogram(aes(x=r,y=..density..),binwidth = 0.2,color='black',alpha=0.6)
+
+#정규분포 그리기
+x <- seq(-3,3,length=300)
+y <- dnorm(x)
+plot(x,y,type = 'l')
+x1 <- seq(-1.96,1.96,length=300)
+y1 <- dnorm(x1)
+polygon(c(-1.96,x1,1.96),c(0,y1,0),col='pink')
+pnorm(1.96,0,1)-pnorm(-1.96,0,1)
+
+x1 <- c(); y1 <- c(); x2 <- c(); y2 <- c()
+for(k in seq(-3,3,length=300)){
+  d=dnorm(k,0,1)
+  x1=c(x1,k)
+  y1=c(y1,d)
+  if(k >=-1.96 & k<=1.96){
+    x2=c(x2,k)
+    y2=c(y2,d)
+  }
+}
+
+rm(list = ls())
+# 문제) 어느 실험실의 연구원이 어떤 식물로부터 하루 동안 추출하는 호르몬의 양은 평균이 30.2mg, 
+# 표준편차가 0.6mg인 정규분포를 따른다고 한다. 어느 날 이 연구원이 하루 동안 추출한 호르몬의 양이 29.6mg 이상이고 
+# 31.4mg 이하일 확률을 오른쪽 표준정규분포표를 이용하여 구한 것은?(2016년 9월 모의고사 가형 10번)
+mu <- 30.2; sd <- 0.6
+t1 <- 29.6; t2 <- 31.4
+z1 <- (t1-mu)/sd; z2 <- (t2-mu)/sd
+x1 <- c() ; x2 <- c() ; y1 <- c() ; y2 <- c()
+for(k in seq(-5,5,length=1000)){
+  d=dnorm(k,0,1)
+  x1=c(x1,k)
+  y1=c(y1,d)
+  if(k>=z1 & k<=z2){
+    x2=c(x2,k)
+    y2=c(y2,d)
+  }
+}
+ggplot(NULL)+
+  geom_line(aes(x=x1,y=y1))+geom_area(aes(x=x2,y=y2),fill='blue')+
+  scale_x_continuous(limits = c(-3,3),breaks = seq(-3,3,0.5))+
+  scale_y_continuous(expand = c(0,0), limits=c(0,0.4))
+pnorm(z2,0,1)-pnorm(z1)
+#95% 신뢰 구간은?
+pnorm(1.96,0,1)-pnorm(-1.96,0,1)
+mu+1.96*sd ; mu-1.96*sd
+
+
+
+###### PT에 있는 문제 풀어보기
+# [2015학년도 수능] 어느 연구소에서 토마토 모종을 심은 지 주가 지났을 때, 
+# 줄기의 길이를 조사한 결과 토마토 줄기의 길이는 평균이 
+# 30cm 표준편차가 2cm인 정규분포를 따른다고 한다. 
+# 이 연구소에서 토마토 모종을 심은 지 주가 지났을 때, 
+# 토마토 줄기 중 임의로 선택한 줄기의 길이가 27cm이상이고 32cm 이하일 확률을 
+# 오른쪽 표준정규분포표를 이용하여 구한 것은? [3점]
+mu <- 30; sd <- 2
+t1 <- 27; t2 <- 32
+z1 <- (t1-mu)/sd; z2 <- (t2-mu)/sd
+x1 <- c() ; x2 <- c() ; y1 <- c() ; y2 <- c()
+x1 <- seq(-5,5,length=1000);x2 <- seq(z1,z2,length=1000)
+y1 <- dnorm(x1); y2 <- dnorm(x2)
+plot(x=x1,y=y1,type = 'l')
+polygon(c(z1,x2,z2),c(0,y2,0),col='blue')
+#2
+data(mtcars)
+# mtcars 데이터에서 mpg는 평균 23이다 라고 말할 수 있는가?
+# 가설검정하여라
+t1 <- mtcars$mpg
+mu <- mean(t1);sd <- sd(t1)
+t <- 23;z <- (t-mu)/sd
+x1 <- c();y1 <- c()
+for(k in seq(-5,5,by=0.001)){
+  d=dnorm(k)
+  x1=c(x1,k)
+  y1=c(y1,d)
+}
+dt <- data.frame(x=x1,y=y1)
+dt %>%
+  ggplot(aes(x=x,y=y))+geom_line()+
+  geom_area(aes(x=ifelse(x>-1.96 & x<1.96,x,0),y=y))+
+  geom_vline(xintercept = z,size=2)+
+  ylim(c(0,0.4))
+#귀무가설 : mtcars$mpg의 평균은 23이다
+#대립가설 : mtcars$mpg의 평균은 23이 아니다
+pnorm(z,0,1)
+mu-1.96*sd ; mu+1.96*sd
+#mpg
+#표본평균의 검정통계량이 신뢰구간에 위치하므로 귀무가설 채택, 대립가설 기각
+#--------------------------------------------------------------------------------
+#####Day 8#####
