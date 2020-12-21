@@ -72,3 +72,6 @@ library(laercio)#F검정 사후분석 LDuncan, tukeyHSD
 
 install.packages("gmodels")
 library(gmodels)#CrossTable() 카이제곱 분석표가 출력력
+
+install.packages("moments")
+library(moments) #왜도 첨도 skewness(왜도) / kurtosis(첨도)
