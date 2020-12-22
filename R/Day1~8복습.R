@@ -1039,3 +1039,327 @@ mu-1.96*sd ; mu+1.96*sd
 #표본평균의 검정통계량이 신뢰구간에 위치하므로 귀무가설 채택, 대립가설 기각
 #--------------------------------------------------------------------------------
 #####Day 8#####
+library(moonBook) #연습용 데이터셋
+library(psych) #상관관계시각화
+library(PerformanceAnalytics) #상관관계 시각화
+library(corrplot)
+
+height<-c(164,175,166,185)
+weight<-c(62,70,64,86)
+cor(height,weight)
+cor(iris$Sepal.Length,iris$Sepal.Width)
+
+data(acs)
+str(acs)
+length(names(acs))
+
+acs_num <- acs[,c(-2:-5,-10,-15:-17)] #숫자형 데이터만 선택
+sapply(acs_num,function(x){sum(is.na(x))}) #결측치 확인
+corrplot(cor(acs_num,use = "na.or.complete"),method = "square") #상관관계 그래프 생성 1
+corrplot(cor(acs_num,use="na.or.complete"),method = "ellipse")
+corrplot(cor(acs_num,use="na.or.complete"),method = "number")
+corrplot(cor(acs_num,use="na.or.complete"),method = "shade")
+corrplot(cor(acs_num,use="na.or.complete"),method = "color")
+corrplot(cor(acs_num,use="na.or.complete"),method = "pie")
+corrplot(cor(acs_num,use="na.or.complete"),method = "circle")
+
+pairs.panels(acs_num) #상관관계 그래프 생성2
+chart.Correlation(acs_num,histogram = T, pch=19) #상관관계 그래프 생성3
+
+dat<-data.frame(
+  a=c(15,20,25,27,31,25,23,23,42,12,34,23,40),
+  b=c(50,55,52,52,56,54,62,56,70,46,43,50,54)
+)
+cor(dat$a,dat$b) #상관관계
+plot(dat$a,dat$b) #산점도
+abline(lm(dat$b~dat$a)) #회귀선
+
+dat[14,] <- c(200,230) #outlier 추가
+#outlier 유무에 따른 결과 확인
+
+#비모수 표현
+cor(height,weight,method = "pearson")
+cor(height,weight,method = "spearman")
+cor(height,weight,method = "kendall")
+
+############### 연습문제 ###############
+
+data(iris)
+#1. iris에서 연속형 데이터를 갖고 상관관계를 구하고 Sepal.Length와 가장 상관있는 변수는 무엇인가?
+#(2가지 이상의 시각화를 그려보시오)
+head(iris)
+library(corrplot)
+library(psych)
+library(PerformanceAnalytics)
+corrplot(cor(iris[,1:4],use="na.or.complete"),method="number")
+pairs.panels(iris[,1:4])
+chart.Correlation(iris[,1:4])
+#petal.widch : 0.96 / sepal.length : 0.87 / sepal.width : -0.43
+
+#####
+data(mtcars)
+head(mtcars)
+#mpg에서 qesc까지의 변수를 갖고 상관관계를 구하시오
+which(names(mtcars)=="qsec")
+library(corrplot)
+library(psych)
+library(PerformanceAnalytics)
+corrplot(cor(mtcars[,1:7],use="na.or.complete"),method='number')
+pairs.panels(mtcars[,1:7])
+chart.Correlation(mtcars[,1:7],histogram = T)
+windows()
+###########
+
+#2. 2 집단에대한 평균비교 t-test 
+#=> 각각의 집단(1집단, 2집단)
+library(ggplot2)
+#독립 T 검정
+t_data<-data.frame(
+  group=c(1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2),
+  score=c(100,100,80,50,40,90,20,50,50,70,30,40,30,70,30,40,30,60,30,60),
+  age=c(80,20,30,70,90,20,30,60,50,50,20,30,20,20,25,10,13,12,11,10))
+ggplot(t_data,aes(x=as.factor(group),y=score,fill=as.factor(group)))+geom_boxplot()
+
+#정규성 검증
+shapiro.test(t_data[t_data$group==1,"score"])
+shapiro.test(t_data[t_data$group==2,"score"])
+hist(t_data[t_data$group==1,"score"])
+t_1 <- t_data[t_data$group==1,"score"]
+t_2 <- t_data[t_data$group==2,"score"]
+wilcox.test(t_1,t_2)
+var.test(t_1,t_2) # F-value = var(t_1)/var(t_2)
+                  #p-value가 0.05 초과로 귀무가설 채택(등분산)
+t.test(t_1,t_2,var.equal = T)
+t.test(data = t_data,score~group,var.equal = T)
+
+#대응 T검정
+before_op = c(137,119,117,122,132,110,114,117)
+after_op = c(126,111,117,116,135,110,113,112)
+
+shapiro.test(before_op) #정규성
+shapiro.test(after_op) #정규성
+t.test(before_op,after_op,paired = T) #0.05 초과로 귀무 채택(차이 없음)
+
+mid = c(16, 20, 21, 22, 23, 22, 27, 25, 27, 28)
+final = c(19, 20, 24, 24, 25, 25, 26, 26, 28, 32)
+shapiro.test(mid) #0.05초과, 정규성
+shapiro.test(final) #0.05초과, 정규성
+t.test(mid,final,paired=T) #=> 0.05이하로, 전후 차이가 있음(대립가설 채택)
+
+################## T검정 연습해보기 ###################
+
+# 1
+# 다음 데이터를 갖고 T검정을 하시오
+a = c(175, 168, 168, 190, 156, 181, 182, 175, 174, 179)
+b = c(185, 169, 173, 173, 188, 186, 175, 174, 179, 180)
+#독립표본 T검정
+#정규성 => a,b그룹 모두 P-value 0.05 초과로 정규성을 갖음(귀무채택)
+shapiro.test(a)
+shapiro.test(b)
+
+#분산분석 => p-value 0.05초과로 등분산(귀무채택)
+var.test(a,b)
+
+#t검정
+# 귀무 : 두 그룹 차이 없음 / 대립 : 두 그룹 차이 있음
+#t.test결과 p-value가 0.05이상인 0.356으로, 귀무가설 참일 때 대립가설을 채택하는 1종오류를 범할 확률이 35.6%이므로, 귀무가설 채택
+t.test(a,b,var.equal = T)
+
+# 2
+# am 변수에 따라 mpg가 차이가 있는지 확인하시오
+data(mtcars)
+head(mtcars)
+unique(mtcars$am)
+m_0 <- mtcars[mtcars$am==0,]
+m_1 <- mtcars[mtcars$am==1,]
+#독립표본 T검정
+shapiro.test(m_0$mpg)
+shapiro.test(m_1$mpg)
+var.test(m_0$mpg, m_1$mpg)
+t.test(m_0$mpg, m_1$mpg, var.equal=T)
+
+#귀무가설 : 두 그룹간 평균 차이가 없다
+#귀무가설 : 두 그룹간 평균 차이가 있다
+#해설 : 우선 am이 0,1인 각 그룹이 정규성을 갖고, p-value(유의확률)가 0.05이하로, 귀무가설이 참일 때 대립가설을 선택할 1종 오류를 범할 활률이 5% 이하이므로 대립가설 채택, 즉 두 그룹간 평균 차이가 있다
+
+# 3 추가자료문제
+#A제약회사에서 체중조절할 수 있는 건강식품을 개발했는데, 정말 체중 조절 효과가 있는가
+bf <- c(75, 74, 75, 75, 83, 77, 82, 62, 77, 82, 72, 75, 78, 71, 68,
+        76, 71, 54, 75, 77, 82, 74, 76, 70, 77, 82, 62, 77, 82, 68)
+af <- c(73, 74, 76, 71, 76, 68, 75, 61, 68, 75, 70, 71, 71, 70, 67,
+        73, 74, 50, 76, 68, 75, 74, 73, 69, 68, 75, 61, 68, 75, 67)
+df <- data.frame(bf=bf,af=af,dif=bf-af)
+mean(df$af) ; mean(df$bf)
+mean(df$dif); sd(df$dif)
+
+shapiro.test(bf)
+shapiro.test(af)
+wilcox.test(af,bf,paired = T)
+t.test(bf,af,paired=T)
+
+#대응표본T검정
+#귀무 : 건강식품 적용 전후 다이어트 효과가 없다
+#대립 : 건강식품 적용 전후 다이어트 효과가 있다
+#bf,af 모두 정규성을 갖지 못하여 wilcox.test로 진행
+#p-value가 0.05이하로, 전후 
+options(scipen = '100')
+#4 추가자료문제
+#독립표본 
+aa <- c(3,4,6,5,5)
+bb <- c(7,6,8,7,5,8)
+shapiro.test(aa)
+shapiro.test(bb)
+var.test(aa,bb)
+t.test(aa,bb,var.equal = T)
+
+##F검정
+anova_data<-data.frame(
+  group=c(1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3),
+  score=c(50.5, 52.1, 51.9, 52.4, 50.6, 51.4, 51.2, 52.2, 51.5, 50.8,47.5, 47.7, 46.6, 47.1, 47.2, 47.8, 45.2, 47.4, 45.0, 47.9,46.0, 47.1, 45.6, 47.1, 47.2, 46.4, 45.9, 47.1, 44.9, 46.2))
+
+ggplot(anova_data,aes(x=factor(group),y=score,fill=factor(group)))+ geom_boxplot()
+tapply(anova_data$score,anova_data$group,max)
+tapply(anova_data$score,anova_data$group,mean)
+aggregate(score~as.factor(group),data=anova_data,max)
+
+shapiro.test(anova_data[anova_data$group==1,2]) #정규성
+shapiro.test(anova_data[anova_data$group==2,2]) #정규성X
+shapiro.test(anova_data[anova_data$group==3,2]) #정규성
+
+kruskal.test(score~as.factor(group),data = anova_data)#순위합 검정
+
+bartlett.test(score~as.factor(group),data = anova_data)#분산분석,등분산
+oneway.test(score~as.factor(group),data = anova_data,var.equal = T) #하나 이상 다름
+summary(aov(score~as.factor(group),data = anova_data)) #하나 이상 다름
+anova(lm(score~as.factor(group),data=anova_data)) #하나 이상 다름
+#세가지 다 결과 같음
+
+
+library(laercio)
+LDuncan(aov(score~as.factor(group),data = anova_data),"group")
+LDuncan(aov(score~as.factor(group),data = anova_data)) #차이없음
+TukeyHSD(aov(score~as.factor(group),data = anova_data))
+plot(TukeyHSD(aov(score~as.factor(group),data = anova_data)))
+
+################## F검정 연습해보기 ###################
+data(iris)
+#1. iris에서 Species마다 Sepal.Width의 차이가 있는지 확인하시오
+# 사후 검정과 해석을 적으시오
+unique(iris$Species)
+tapply(iris$Sepal.Width,iris$Species,shapiro.test)
+# shapiro.test(iris[iris$Species=='setosa',"Sepal.Width"])
+# shapiro.test(iris[iris$Species=='versicolor',"Sepal.Width"])
+# shapiro.test(iris[iris$Species=='virginica',"Sepal.Width"])
+bartlett.test(Sepal.Width~Species,data=iris)
+str(iris)
+summary(aov(Sepal.Width~Species,data=iris))
+oneway.test(Sepal.Width~Species,data=iris,var.equal = T)
+anova(lm(Sepal.Width~Species,data=iris))
+ggplot(iris,aes(x=Species,y=Sepal.Width,fill=Species))+geom_boxplot()
+
+tapply(iris$Sepal.Width,iris$Species,mean)
+aggregate(Sepal.Width~Species,data=iris,mean)
+
+LDuncan(aov(Sepal.Width~Species,data=iris))
+TukeyHSD(aov(Sepal.Width~Species,data=iris))
+
+
+
+#2 mtcars데이터에서 gear따라 mpg의 차이가 있는지 확인하시오
+# 사후 검정과 해석을 적으시오
+data(mtcars)
+head(mtcars)
+aggregate(mpg~gear,data=mtcars,mean)
+
+tapply(mtcars$mpg,mtcars$gear,shapiro.test)
+# shapiro.test(mtcars[mtcars$gear==3,"mpg"])
+# shapiro.test(mtcars[mtcars$gear==4,"mpg"])
+# shapiro.test(mtcars[mtcars$gear==5,"mpg"])
+qqnorm(mtcars[mtcars$gear==3,]$mpg)
+qqline(mtcars[mtcars$gear==3,]$mpg,col=2)
+qqnorm(mtcars[mtcars$gear==4,]$mpg)
+qqline(mtcars[mtcars$gear==4,]$mpg,col=2)
+qqnorm(mtcars[mtcars$gear==5,]$mpg)
+qqline(mtcars[mtcars$gear==5,]$mpg,col=2)
+# kruskal.test(mpg~as.factor(gear),data=mtcars)
+bartlett.test(mpg~as.factor(gear),data=mtcars)
+
+anova(lm(mpg~as.factor(gear),data=mtcars))
+summary(aov(mpg~as.factor(gear),data=mtcars))
+oneway.test(mpg~as.factor(gear),data=mtcars,var.equal = T)
+
+LDuncan(aov(mpg~as.factor(gear),data=mtcars))
+TukeyHSD(aov(mpg~as.factor(gear),data=mtcars))
+
+#카이제곱검정
+library(moonBook)
+data(acs)
+head(acs)
+
+acs %>% 
+  count(sex,obesity) %>% 
+  ggplot(aes(x=sex,y=n,fill=obesity))+geom_bar(stat='identity',position='dodge')
+library(gmodels)
+chisq.test(acs$sex,acs$obesity,correct=T,)$expected
+chisq.test(acs$sex,acs$obesity,correct=F)$expected
+CrossTable(acs$sex,acs$obesity,chisq = T,format='SPSS')
+
+dat <- matrix(c(20,24,15,5),ncol=2)
+row.names(dat) <- c("흡연","비흡연")
+colnames(dat)<- c("정상","비정상")
+chisq.test(dat)$expected
+
+tab <- matrix(c(384, 536, 335,951, 869, 438),nrow=2)
+dimnames(xtab) <- list(
+  stone = c("yes", "no"),
+  age = c("30-39", "40-49", "50-59")
+)
+
+colSums(xtab)
+prop.trend.test(xtab[1,],colSums(xtab))
+mosaicplot(t(xtab),col=c("deepskyblue", "brown2")) #히트맵이랑 유사한 그래프
+# 나이 비율이 동일하지 않다
+
+
+################## 카이제곱 연습해보기 ###################
+# 1
+# install.packages("MASS")
+library(MASS)
+data(survey)
+head(survey)
+# survey 데티어에서 Sex변수와 Smoke가 연관이 있는지 검정하여라
+# 시각화 포함
+library(tidyr)
+library(dplyr)
+survey_t <- survey %>% 
+  drop_na(Sex, Smoke)
+chisq.test(survey_t$Sex,survey_t$Smoke)
+chisq.test(survey_t$Sex,survey_t$Smoke,correct = T)
+chisq.test(table(survey_t$Sex,survey_t$Smoke),correct = T)
+CrossTable(survey_t$Sex,survey_t$Smoke,chisq = T)
+survey_t %>% 
+  count(Sex,Smoke) %>% 
+  ggplot(aes(x=Sex, y=n, fill=Smoke))+
+  geom_bar(stat="identity", position='dodge')
+mosaicplot(survey_t$Sex,survey_t$Smoke,col=c("deepskyblue", "brown2"))
+# 2
+dv = read.csv('SKT.csv', fileEncoding='UTF-8')
+head(dv)
+# 요일별 업종의 차이가 있는지 검정하여라
+chisq.test(dv$요일,dv$업종,correct=T)
+CrossTable(dv$요일,dv$업종,chisq=T,prop.t=F)
+table(dv$요일,dv$업종)
+dv$요일 <- factor(dv$요일,
+                levels = c("일","월","화","수","목","금","토"))
+dv %>% 
+  count(요일,업종) %>% 
+  ggplot(aes(x=요일,y=n,fill=업종))+
+  geom_bar(stat='identity', position = 'dodge')
+mosaicplot(dv$요일,dv$업종,col=c("deepskyblue", "brown2"))
+
+#######################################################
+
+
+mtcars
+summary(mpg~., data=mtcars)
+lm(formula=mpg~., data=mtcars)
