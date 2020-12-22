@@ -500,7 +500,10 @@ cor(data1,data2) #숫자형 데이터 상관관계 분석
 #method : pearson(default), spearman, kendall
 
 #독립표본
+tapply(score,group,shapiro.test)
 shapiro.test() #0.05초과이면 귀무채택 -> 정규성
+
+qqnorm()
 wilcox.test() #shapiro 0.05이하시 진행
 var.test(data1,data2) #정규성 띄울 시 진행=>0.05초과 귀무채택 ->등분산
 #t-test1
@@ -511,14 +514,22 @@ t.test(value~group,data,var.equal=T)
 
 #대응표본
 shapiro.test()
+tapply(score,group,shapiro.test)
 t.test(data1,data2,paired = T) #shapiro 0.05초과
 wilcox.test(data1,data2, paired=T) #shapiro 0.05이하
+
+#자료 확인, tapply와 같음
+aggregate(score~as.factor(group),data=anova_data,mean)
+tapply(anova_data$score,anova_data$group,mean)
 
 #분산분석(F검정)
 kruskal.test()#shapiro 0.05미만
 bartlett.test(score~group,data)#shapiro0.05초과이며, p값이 0.05초과 시 등분산(귀무채택)
 oneway.test(score~group,data,var.equal = T) #가설검정 특화
 summary(aov(score~group,data=anova_data)) #분산분석표 확인 가능
+#summary(aov())와 같은 코드
+anova(lm(score~as.factor(group),data=anova_data))
+
 
 library(laercio) #사후분석, lduncan,ltukey 내장
 LDuncan(aov_result, "group") #aov 결과와 범주 입력
@@ -527,6 +538,7 @@ TukeyHSD(aov(score~as.character(group),data=anova_data))
 plot(TukeyHSD()) #하면 그래프로 표현
 
 #카이제곱검정
+chisq.test()$expected #기대빈도 구하기기
 chisq.test(data_범주형1,data_범주형2,correct=T)
 #비연속적 이항분포에서 확률이나 비율을 알기 위해 연속적 분포로 만들기 위한 교정
 #적합성 분석(특정 확률) or 독립성 분석(연관있는지, 이걸 많이 함)
