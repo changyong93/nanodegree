@@ -35,7 +35,7 @@ saveRDS(new_data, file = "new_iris.rds")# RDS 파일로 저장
 
 load('iris.rdata') #저장해놨던 workspace 데이터 가져오기, 변수할당 불필요
 save.image('iris.rdata') # workspace 데이터 저장
-save(iris1, iris2, file = 'iris_data.rda') #workspace의 변수 일부 저장
+save(iris1, iris2, file = 'iris_data.rdata') #workspace의 변수 일부 저장
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ########workspace 관련
 ls() # workspace의 변수 목록 출력
@@ -59,7 +59,8 @@ dim() #matrix 데이터 행렬 개수
       #dim(벡터변수명) <- c(nrow,ncol) 시 matrix생성됨
 which(names(dataframe) == "컬럼명") # 해당 컬럼의 번호 찾기
 unique() #데이터 중복값 없이 종류 확인할 때때
-
+table() #범주형 데이터 범주별 빈도수 계산
+which.max() #각 팩터 중 가장 빈도수가 높은 팩터
 expand.grid() #데이터 모든 경우의수 보기
 nrow() # row 개수 반환
 ncol() # col 개수 반환
@@ -180,6 +181,8 @@ ja <- list(AA = aa, BB = ba, CC = ca) #list, 각 데이터의 변수명 입력�
 ma <- factor(c("O","AB","A"),levels = c("A","B","AB","O"),labels=c("A형","B형","AB형","O형")) #범주형, 순서X , level과 label 지정 안할 시 입력 데이터로 알아서 라벨링
 na <- ordered(AgeG, levels=c(1,2,3,4), labels=c("20대 이하","30대","40대","50대 이상")) #범주형, 순서O, level과 label 입력 안할 시 입력 데이터로 범주 할당
 oa <- sample(1:6,10,replace = T)# sample (범위, 추출수, replace = 중복가능)
+sample(1:2, 400, prob = (0.4,0.6), replace = T)
+#1,2를 40%, 60% 확률로 400개 추출
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #기타
 set.seed(1233) 
@@ -392,7 +395,7 @@ labs(fill = "범례명")
 #그래프가 누적값일 경우, y=변수1에서 변수1의 누적값 위치 저장
 mutate(pos = cumsum(변수1)- 0.5*변수1)
 #단 group_by & arrange로 그래프 누적 순으로 행을 맞춰준 후 누적합 구하기
-geom_text(aes(label=변수1, y=pos) size=10) #size : 글자사이즈
+geom_text(aes(label=변수1, y=변수1) size=10) #size : 글자사이즈
 
 #facet_grid로 누적값별로 다 그래프로 나눈 경우
 #누적위치 pos 생성 불필요
@@ -449,5 +452,104 @@ ggplot(NULL) +
   geom_abline(intercept = 0, slope = 1, col = 'red',
               size = 2) +
   theme_bw()
+
+
+#--------------------------------------------------------------------------------
+#R통계
+#sampling 패키지 내장 함수
+strata(date, size, method, stratanaems)
+strata(c("Species"), size=c(3, 1, 1), method="srswr", data=iris)
+#Species별(층화) size에 따라 각 3개 1개 1개 추출
+
+#이항분포 -> n30이상 시 정규분포화 가능
+rbinom(n=100,size=5,prob=0.5)
+dbinom(x=3,size=5,prob=0.5) #확률밀도함수 5C3*(1/2)^3*(1/2)^2
+pbinom(q=2,size=5,prob=0.5) #누적 확률
+
+#연속 확률 분포
+# 정규분포
+rnorm(n, mean = , sd = ) # 평균과 분산에 해당하는 랜덤 샘플, 난수함수
+
+dnorm(x, mean = , sd = ) # 확률 밀도함수
+
+pnorm(p, mean = , sd = ) # 누적 분포함수
+                         # lower.tail=FALSE 입력 시 p기준 우측 분포 구함
+qnorm(n, mean = , sd = ) # 분쉬수 함수
+                         # lower.tail=FALSE 입력 시 -Z값으로 인식
+#--------------------------------------------------------------------------------
+####
+#정규성 검증 시 샤피로 이외에도 왜도 첨도도 확인해야 함
+library(moments)
+skewness(data1) #왜도
+kurtosis(data1) #첨도
+#상관관계분석, T,F,카이제곱검정
+
+#상관관계
+library(psych)
+pairs.panels() #상관관계그래프화,유수기능이 내장되어 있어서 결측치 처리 불필요
+
+library(PerformanceAnalytics) 
+chart.Correlation(acs2, histogram=TRUE, pch=19) #상관관계그래프화,유수기능이 내장되어 있어서 결측치 처리 불필요
+                                                #pairs.panels보다 시각화우수
+library(corrplot)
+corrplot(cor(acs2,use="na.or.complete"),method="pie") #결측치 처리해야 함
+#method로 그래프 형태 지정, square, ellipse,number,shade,color,pie,....
+
+#상관관계
+cor(data1,data2) #숫자형 데이터 상관관계 분석
+#method : pearson(default), spearman, kendall
+
+#독립표본
+tapply(score,group,shapiro.test)
+shapiro.test() #0.05초과이면 귀무채택 -> 정규성
+
+qqnorm()
+wilcox.test() #shapiro 0.05이하시 진행
+var.test(data1,data2) #정규성 띄울 시 진행=>0.05초과 귀무채택 ->등분산
+#t-test1
+t.test(data1,data2,var.equal = T) #0.05이하면 그룹간 차이 있음(대립채택)
+#var.test 시 이분산이면 var.equal=F
+#t-test2
+t.test(value~group,data,var.equal=T)
+
+#대응표본
+shapiro.test()
+tapply(score,group,shapiro.test)
+t.test(data1,data2,paired = T) #shapiro 0.05초과
+wilcox.test(data1,data2, paired=T) #shapiro 0.05이하
+
+#자료 확인, tapply와 같음
+aggregate(score~as.factor(group),data=anova_data,mean)
+tapply(anova_data$score,anova_data$group,mean)
+
+#분산분석(F검정)
+kruskal.test()#shapiro 0.05미만
+bartlett.test(score~group,data)#shapiro0.05초과이며, p값이 0.05초과 시 등분산(귀무채택)
+oneway.test(score~group,data,var.equal = T) #가설검정 특화
+summary(aov(score~group,data=anova_data)) #분산분석표 확인 가능
+#summary(aov())와 같은 코드
+anova(lm(score~as.factor(group),data=anova_data))
+
+
+library(laercio) #사후분석, lduncan,ltukey 내장
+LDuncan(aov_result, "group") #aov 결과와 범주 입력
+TukeyHSD(aov(score~as.character(group),data=anova_data))
+#범주는 반드시 문자형으로 입력해야 함
+plot(TukeyHSD()) #하면 그래프로 표현
+
+#카이제곱검정
+chisq.test()$expected #기대빈도 구하기기
+chisq.test(data_범주형1,data_범주형2,correct=T)
+#비연속적 이항분포에서 확률이나 비율을 알기 위해 연속적 분포로 만들기 위한 교정
+#적합성 분석(특정 확률) or 독립성 분석(연관있는지, 이걸 많이 함)
+
+library(gmodels) #CrossTable
+CrossTable(data_범주형1,data_범주형2,chisq=T,prop.t=F)
+#format='SPSS'추가 시 100% 비율로 나옴
+CrossTable(table(data_범주형1,data_범주형2))
+#첫번째 코드결과+전체에서 각각비율 나옴
+#https://wikidocs.net/34030 참고하여 카이제곱 검정 할 것
+fisher.test() #기대빈도수 5이하면 chisq대신 이걸로 진행
+prop.trend.test(xtab[1,],colSums(xtab)) #순위가 있을 경우
 
 
