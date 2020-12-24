@@ -11,7 +11,7 @@ library(seleniumPipes)
 
 ##그리고 R에서 아래 명령어를 실행
 remDr <- remoteDriver(remoteServerAddr="localhost",
-                      port=4445L,  
+                      port=4445L,
                       browserName="chrome")
 #cmd에서 상기 1),2)과정 후 cmd를 켜놔야 함
 remDr$open()
@@ -74,11 +74,10 @@ library(seleniumPipes)
 ##입력후 엔터로 실행합니다
 
 ##그리고 R에서 아래 명령어를 실행
-remDr$getPageSource()
-remDr$goBack()
 remDr <- remoteDriver(remoteServerAddr="localhost",
                       port=4445L,  
                       browserName="chrome")
+
 #cmd에서 상기 1),2)과정 후 cmd를 켜놔야 함
 remDr$open()
 
@@ -108,128 +107,52 @@ crawling <- function(x,y){
                         ele_info_class$getElementText(),"_",ele_sector$getElementText(),"_",ele_option$getElementText(),".csv")
   }
   if(str_detect(file_name, "/")==T){
-    file_name <- str_replace_all(file_name,"/",",")
+    file_name <- str_replace_all(file_name,"/","&")
   }
   write.csv(data_final,file_name)
 }
 
 
 #input 변수
-year <- c(2019,2020)
-quarter <- c(3,4) #2020 - 1,2,3 // 2019 - 4분기
-info_class <- c(2:9) #점포분류 
+year_quarter <- list(Set1=c(2019,4),Set2=c(2020,1),Set3=c(2020,2),Set1=c(2020,3))
+year_quarter <- list(Set3=c(2020,2))
+#2020 - 1,2,3 // 2019 - 4분기
+info_class <- c(9) #점포분류 
 sector <- c(2:4) #생활밀접업종
-option2 <- c(2:11) #생활밀접업종 세부
-option3 <- c(2:48) #생활밀접업종 세부
-option4 <- c(2:44) #생활밀접업종 세부
 
-for (a in c(quarter)){
-  for(yy in c(year)){
-    if(yy==2020 & a %in% c(1:3)){
-      ele_year=remDr$findElement(using="xpath", value =paste0("//*[@id='selectYear']/option[@value='",yy,"']"))
-      ele_year$clickElement()
+for(a in 1:length(year_quarter)){
+  ele_year=remDr$findElement(using="xpath",value=paste0("//*[@id='selectYear']/option[@value='",year_quarter[[a]][1],"']"))
+  ele_year$clickElement()
+  Sys.sleep(time = 0.5)
+  ele_quarter=remDr$findElement(using="xpath",value=paste0("//*[@id='selectQu']/option[@value='",year_quarter[[a]][2],"']"))
+  ele_quarter$clickElement()
+  Sys.sleep(time = 0.5)
+  for(b in c(info_class)){
+    ele_info_class=remDr$findElement(using="xpath",value=paste0("//*[@id='infoCategory']/option[",b,"]"))
+    ele_info_class$clickElement()
+    Sys.sleep(time = 0.5)
+    if(b>6){
+      remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
       Sys.sleep(time = 0.5)
-      ele_quarter=remDr$findElement(using="xpath",value=paste0("//*[@id='selectQu']/option[@value='",a,"']"))
-      ele_quarter$clickElement()
+      crawling("id","table1")
       Sys.sleep(time = 0.5)
-      for(b in c(info_class)){
-        ele_info_class=remDr$findElement(using="xpath",value=paste0("//*[@id='infoCategory']/option[",b,"]"))
-        ele_info_class$clickElement()
+    } else{
+      for(cc in c(sector)){
+        ele_sector=remDr$findElement(using="xpath",value=paste0("//*[@id='induL']/option[",cc,"]"))
+        ele_sector$clickElement()
         Sys.sleep(time = 0.5)
-        if(b>6){
+        webElem <- remDr$findElement('id',"induM")
+        appHTML <- webElem$getElementAttribute("outerHTML")[[1]]
+        induM_data <- strsplit(appHTML,"</option>")[[1]]
+        for(d in seq(2,length(induM_data)-1,1)){
+          ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
+          ele_option$clickElement()
+          Sys.sleep(time = 0.5)
           remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
           Sys.sleep(time = 0.5)
           crawling("id","table1")
           Sys.sleep(time = 0.5)
-        } else{
-          for(cc in c(sector)){
-            ele_sector=remDr$findElement(using="xpath",value=paste0("//*[@id='induL']/option[",cc,"]"))
-            ele_sector$clickElement()
-            Sys.sleep(time = 0.5)
-            if(cc==2){
-              for(d in c(option2)){
-                ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
-                ele_option$clickElement()
-                Sys.sleep(time = 0.5)
-                remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-                Sys.sleep(time = 0.5)
-                crawling("id","table1")
-                Sys.sleep(time = 0.5)
-              }
-            } else if(cc==3){
-              for(d in c(option3)){
-                ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
-                ele_option$clickElement()
-                remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-                Sys.sleep(time = 0.5)
-                crawling("id","table1")
-                Sys.sleep(time = 0.5)
-            }
-            } else{
-              for(d in c(option4)){
-                ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
-                ele_option$clickElement()
-                remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-                Sys.sleep(time = 0.5)
-                crawling("id","table1")
-                Sys.sleep(time = 0.5)
-              }
-            }
-          }
-        }
-      }
-    } else if(yy==2019 & a==4){
-      ele_year=remDr$findElement(using="xpath", value =paste0("//*[@id='selectYear']/option[@value='",yy,"']"))
-      ele_year$clickElement()
-      Sys.sleep(time = 0.5)
-      ele_quarter=remDr$findElement(using="xpath",value=paste0("//*[@id='selectQu']/option[@value='",a,"']"))
-      ele_quarter$clickElement()
-      Sys.sleep(time = 0.5)
-      for(b in c(info_class)){
-        ele_info_class=remDr$findElement(using="xpath",value=paste0("//*[@id='infoCategory']/option[",b,"]"))
-        ele_info_class$clickElement()
-        Sys.sleep(time = 0.5)
-        if(b>6){
-          remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-          Sys.sleep(time = 0.5)
-          crawling("id","table1")
-          Sys.sleep(time = 0.5)
-        } else{
-          for(cc in c(sector)){
-            ele_sector=remDr$findElement(using="xpath",value=paste0("//*[@id='induL']/option[",cc,"]"))
-            ele_sector$clickElement()
-            Sys.sleep(time = 0.5)
-            if(cc==2){
-              for(d in c(option2)){
-                ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
-                ele_option$clickElement()
-                Sys.sleep(time = 0.5)
-                remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-                Sys.sleep(time = 0.5)
-                crawling("id","table1")
-                Sys.sleep(time = 0.5)
-              }
-            } else if(cc==3){
-              for(d in c(option3)){
-                ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
-                ele_option$clickElement()
-                remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-                Sys.sleep(time = 0.5)
-                crawling("id","table1")
-                Sys.sleep(time = 0.5)
-              }
-            } else{
-              for(d in c(option4)){
-                ele_option=remDr$findElement(using="xpath",value=paste0("//*[@id='induM']/option[",d,"]"))
-                ele_option$clickElement()
-                remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-                Sys.sleep(time = 0.5)
-                crawling("id","table1")
-                Sys.sleep(time = 0.5)
-              }
-            }
-          }
-        }
+        } 
       }
     }
   }
