@@ -60,21 +60,28 @@ for (i in c(1:length(file_name))){
 }
 
 #csv file로 전처리 데이터 저장장
-path <- "C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/data"
+setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/data")
+getwd()
+rm(data)
+
+#rdata로 저장장
+save(store_num_data,new_Enter_data,annual_survival_rate_data,
+     biz_period_data,swt_biz_data,pop_data,income_num_data,rent_price_data,file = '우리마을상권분석.RData')
+rm(list = ls())
+
+#excel csv파일로 저장
 k <- 1
 while(k < 2){
-  write.csv(store_num_data,paste0(path,'/store_num_data.csv'),row.names = F) #점포수
-  write.csv(new_Enter_data,paste0(path,'/new_Enter_data.csv'),row.names = F)#신생기업 생존률
-  write.csv(annual_survival_rate_data,paste0(path,'/annual_survival_rate_data.csv'),row.names = F) #연차별생존률
-  write.csv(biz_period_data,paste0(path,'/biz_period_data.csv'),row.names = F)#평균영업기간
-  write.csv(swt_biz_data,paste0(path,'/swt_biz_data.csv'),row.names = F)#개폐업수(률)
-  write.csv(pop_data,paste0(path,'/pop_data.csv'),row.names = F) #인구수
-  write.csv(income_num_data,paste0(path,'/income_num_data.csv'),row.names = F)#소득&가구수
-  write.csv(rent_price_data,paste0(path,'/rent_price_data.csv'),row.names = F) #임대시세
+  write.csv(store_num_data,'store_num_data.csv',row.names = F) #점포수
+  write.csv(new_Enter_data,'new_Enter_data.csv',row.names = F)#신생기업 생존률
+  write.csv(annual_survival_rate_data,'annual_survival_rate_data.csv',row.names = F) #연차별생존률
+  write.csv(biz_period_data,'biz_period_data.csv',row.names = F)#평균영업기간
+  write.csv(swt_biz_data,'swt_biz_data.csv',row.names = F)#개폐업수(률)
+  write.csv(pop_data,'pop_data.csv',row.names = F) #인구수
+  write.csv(income_num_data,'income_num_data.csv',row.names = F)#소득&가구수
+  write.csv(rent_price_data,'rent_price_data.csv',row.names = F) #임대시세
   k=k+1
 }
-
-
 
 #-------------------------------------------------------------------------------------------
 #폴더내 파일명을 정보분류에 따라 리스트 나누기
