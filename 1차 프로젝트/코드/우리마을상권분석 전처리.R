@@ -76,17 +76,15 @@ for (i in c(1:length(file_name))){
     rent_price_data = rbind(rent_price_data,data_R,data_C)
   }
 }
-store_num_data[1,3]
+
 store_num_data <- store_num_data %>% filter(행정구역!="서울시 전체")
 new_Enter_data <- new_Enter_data %>% filter(행정구역!="서울시 전체")
 annual_survival_rate_data <- annual_survival_rate_data %>% filter(행정구역!="서울시 전체")
-
 colnames(biz_period_data)[5:6] <- c("평균영업기간(최근10년)","평균영업기간(최근30년)")
 biz_period_data <- biz_period_data %>% filter(행정구역!='행정구역')
-pop_data <- pop_data %>% filter(행정구역!="서울시 전체")
+swt_biz_data <- swt_biz_data %>% filter(행정구역!="서울시 전체")
 income_num_data <- income_num_data %>% filter(행정구역!="서울시 전체")
 pop_data <- pop_data %>% filter(행정구역!="서울시 전체")
-
 colnames(rent_price_data)[5:6] <- rent_price_data[1,5:6]
 rent_price_data <- rent_price_data %>% filter(행정구역!='행정구역')
 
@@ -98,7 +96,7 @@ getwd()
 save(store_num_data,new_Enter_data,annual_survival_rate_data,
      biz_period_data,swt_biz_data,pop_data,income_num_data,rent_price_data,file = '우리마을상권분석.RData')
 rm(list = ls())
-# load('우리마을상권분석.RData')
+load('우리마을상권분석.RData')
 
 
 #excel csv파일로 저장
