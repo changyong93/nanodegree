@@ -96,5 +96,6 @@ data %>%
 #gu가 0이 아닌, 즉 서울시에 위치한 지하철역만 저장
 data <- data[data$gu!=0,]
 
+#저장 위치 지정
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터")
-saveRDS(data,"행정구별 지하철노선 및 동명.rds")
+saveRDS(data,"지하철역별_행정구 구분.rds")
