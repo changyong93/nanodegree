@@ -116,4 +116,9 @@ pred2 <- predict(object = fit2, newdata = testSet, type = 'response')
 RMSE(y_pred = pred1, y_true = real)
 RMSE(y_pred = pred2, y_true = real)
 
-regMeasure(real = real, pred = pred1)
+#표준화 회귀계수 => 다중선형 회귀모형에서 입력변수의 상대적 중요성 확인
+# install.packages('reghelper')
+library(reghelper)
+beta.z <- beta(model = fit2)
+print(x = beta.z$coefficients)
+round(x = beta.z$coefficients[,1], digits = 4L)
