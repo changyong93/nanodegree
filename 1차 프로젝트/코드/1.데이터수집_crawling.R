@@ -2,7 +2,8 @@ library(rvest)
 library(RSelenium)
 library(httr)
 library(seleniumPipes)
-
+library(stringr)
+rm(list=ls())
 ##selenium(셀레니움)을 켭니다
 ##cmd를 켠 상태에서
 ##1) cd C:\r-selenium
@@ -27,7 +28,8 @@ element$clickElement()
 #기준년/분기 선택
 year <- remDr$findElement(using="xpath", value ="//*[@id='selectYear']/option[@value='2020']")
 year$clickElement()
-queter <- remDr$findElement(using="xpath",value="//*[@id='selectQu']/option[@value='1']")
+quarter <- remDr$findElement(using="xpath",value="//*[@id='selectQu']/option[@value='1']")
+quarter$clickElement()
 
 #정보분류 선택
 info_class <- remDr$findElement(using="xpath",value="//*[@id='infoCategory']/option[2]")
@@ -39,7 +41,7 @@ info_class$clickElement()
 sector <- remDr$findElement(using="xpath",value="//*[@id='induL']/option[3]")
 sector$clickElement()
 #소분류
-option <- remDr$findElement(using="xpath",value="//*[@id='induM']/option[46]")
+option <- remDr$findElement(using="xpath",value="//*[@id='induM']/option[37]")
 option$clickElement()
 
 #검색
@@ -54,11 +56,12 @@ Sys.setlocale('LC_ALL', 'English')
 table = page_html %>% html_table(fill = TRUE)
 Sys.setlocale('LC_ALL', 'Korean')
 data <- as.data.frame(table[4])
-data <- data[str_sub(data$행정구역,-1)=='구',]
-data1 <- rbind(data[1:2,],data[str_sub(data$행정구역,-1)=='구',])
-
-file_name <- paste0(ele_year$getElementText(),ele_quarter$getElementText(),
-                    ele_info_class$getElementText(),ele_sector$getElementText(),ele_option$getElementText())
+# data <- data[str_sub(data$행정구역,-1)=='구',]
+data <- rbind(data[1:2,],data[str_sub(data$행정구역,-1)=='구',])
+# View(data)
+file_name <- paste0(year$getElementText(),"_",quarter$getElementText(),"_",
+                    info_class$getElementText(),"_",sector$getElementText(),"_",option$getElementText(),".csv")
+setwd('C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/data/raw_data/우리마을 상권분석 서비스 데이터')
 write.csv(data,file_name)
 
 #--------------------------------------------------------------------------------------------------------------
@@ -112,13 +115,17 @@ crawling <- function(x,y){
   write.csv(data_final,file_name)
 }
 
-
+setwd('C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/data/raw_data/우리마을 상권분석 서비스 데이터')
+getwd()
 #input 변수
-year_quarter <- list(Set1=c(2019,4),Set2=c(2020,1),Set3=c(2020,2),Set1=c(2020,3))
-year_quarter <- list(Set3=c(2020,2))
+# year_quarter <- list(Set1=c(2019,4),Set2=c(2020,1),Set3=c(2020,2),Set1=c(2020,3))
+# info_class <- c(2:9) #점포분류 
+# sector <- c(2:4) #생활밀접업종
+
+year_quarter <- list(Set1=c(2019,4))
 #2020 - 1,2,3 // 2019 - 4분기
-info_class <- c(9) #점포분류 
-sector <- c(2:4) #생활밀접업종
+info_class <- c(4) #점포분류 
+sector <- c(3) #생활밀접업종
 
 for(a in 1:length(year_quarter)){
   ele_year=remDr$findElement(using="xpath",value=paste0("//*[@id='selectYear']/option[@value='",year_quarter[[a]][1],"']"))
@@ -133,7 +140,7 @@ for(a in 1:length(year_quarter)){
     Sys.sleep(time = 0.5)
     if(b>6){
       remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-      Sys.sleep(time = 0.5)
+      Sys.sleep(time = 2)
       crawling("id","table1")
       Sys.sleep(time = 0.5)
     } else{
@@ -149,7 +156,7 @@ for(a in 1:length(year_quarter)){
           ele_option$clickElement()
           Sys.sleep(time = 0.5)
           remDr$findElement(using="xpath",value="//*[@id='presentSearch']")$clickElement()
-          Sys.sleep(time = 0.5)
+          Sys.sleep(time = 2.5)
           crawling("id","table1")
           Sys.sleep(time = 0.5)
         } 
