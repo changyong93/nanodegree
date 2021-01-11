@@ -8,6 +8,10 @@ file_name <- list.files() #폴더 내 파일명 가져오기
 file_name_list <- str_sub(file_name,1,nchar(file_name)-4) #파일명에서 .csv 제거
 info_class_list <- c('점포수'=1,'신생기업 생존율'=2,'연차별 생존율'=3,'평균영업기간'=4,
                      '개폐업수(률)'=5,'인구수'=6,'소득&가구수'=7,'임대시세'=8)
+# x <- '2019년_4분기_개폐업수(률)_소매업_운동&경기용품.csv'
+# x <- '2019년_4분기_개폐업수(률)_소매업_유아의류.csv'
+# y <- 5
+# i <- 2
 
 #엑셀파일 중간 년&분기 데이터 전처리 및 추출
 modi_data_2019 <- function(x,y){
@@ -21,7 +25,12 @@ modi_data_2019 <- function(x,y){
     d2 <- c()
     for(i in 1:dim(test)[1]){
       d1 <- c(d1,strsplit(test$생활밀접업종,"/")[[i]][1])
-      d2 <- c(d2,strsplit(test$생활밀접업종,"/")[[i]][2])
+      if(length(strsplit(test$생활밀접업종,"/")[[i]])==2){
+        d2 <- c(d2,strsplit(test$생활밀접업종,"/")[[i]][2])
+      } else {
+        name = paste0(strsplit(test$생활밀접업종,"/")[[i]][2],"&",strsplit(test$생활밀접업종,"/")[[i]][3])
+        d2 <- c(d2,name)
+      }
     }
     test$대분류 <- d1
     test$소분류 <- d2
@@ -49,7 +58,12 @@ modi_data_2020 <- function(x,y){
     d2 <- c()
     for(i in 1:dim(test)[1]){
       d1 <- c(d1,strsplit(test$생활밀접업종,"/")[[i]][1])
-      d2 <- c(d2,strsplit(test$생활밀접업종,"/")[[i]][2])
+      if(length(strsplit(test$생활밀접업종,"/")[[i]])==2){
+        d2 <- c(d2,strsplit(test$생활밀접업종,"/")[[i]][2])
+      } else {
+        name = paste0(strsplit(test$생활밀접업종,"/")[[i]][2],"&",strsplit(test$생활밀접업종,"/")[[i]][3])
+        d2 <- c(d2,name)
+      }
     }
     test$대분류 <- d1
     test$소분류 <- d2
@@ -140,7 +154,7 @@ smallbz_data[,10] <- gsub(pattern = "년",replacement = "",x = smallbz_data[,10]
 vars <- 1:5
 smallbz_data[,vars] <- map_df(.x = smallbz_data[,vars],.f = as.factor)
 smallbz_data[,-vars] <- map_df(.x = smallbz_data[,-vars],.f = as.numeric)
-summary(smallbz_data)
+
 
 vars <- 4:12
 smallbz_data_gu[,-vars] <- map_df(.x = smallbz_data_gu[,-vars],.f = as.factor)
@@ -148,7 +162,6 @@ for(i in vars){
   smallbz_data_gu[,i] <- str_replace_all(smallbz_data_gu[,i],",","")
   smallbz_data_gu[,i] <- as.numeric(smallbz_data_gu[,i])
 }
-summary(smallbz_data_gu)
 
 #csv file로 전처리 데이터 저장장
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터")
@@ -156,6 +169,5 @@ getwd()
 
 #rdata로 저장
 save(smallbz_data,smallbz_data_gu,file = '우리마을상권분석.rda')
-rm(list = ls())
-load('우리마을상권분석.rda')
+
 
