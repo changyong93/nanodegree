@@ -23,7 +23,6 @@ sangkwon_gu <- sangkwon_gu[,c(2,4,5)]#행정동 추가
 #상권-추정매출 데이터 합치기
 setwd('C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터/원본데이터/')
 getwd()
-list.files()
 #상권 추정매출 데이터 전처리
 data1 <- read.csv("서울시 우리마을가게 상권분석서비스(상권-추정매출)_2015.csv", fileEncoding = 'euc-kr')
 data2 <- read.csv("서울시 우리마을가게 상권분석서비스(상권-추정매출)_2016.csv", fileEncoding = 'euc-kr')
@@ -38,25 +37,16 @@ data6[data6$상권_코드_명=="종로?청계 관광특구",]$상권_코드_명 
 #2015~2020년도 데이터셋 결합
 smallbz_sales <- rbind(data1,data2,data3,data4,data5,data6)
 
-#매출액이 마이너스인 상권 제거
-outlier_minus <- data.frame(smallbz_sales[smallbz_sales$당월_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$월요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$화요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$수요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$목요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$금요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$토요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$일요일_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$시간대_00.06_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$시간대_06.11_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$시간대_11.14_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$시간대_14.17_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$시간대_17.21_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- rbind(outlier_minus,smallbz_sales[smallbz_sales$시간대_21.24_매출_금액 <0, c("기준_년_코드","기준_분기_코드","상권_코드")])
-outlier_minus <- outlier_minus %>% distinct(기준_년_코드,기준_분기_코드,상권_코드)
+#매출액이 마이너스인 인덱스의 상권&업태 조합을 모두 제거
+outlier_minus <- data.frame()
+for(i in 36:48){
+  outlier_minus <- rbind(outlier_minus, smallbz_sales[smallbz_sales[,i]<0,c(1,2,5,7)])
+  
+}
+outlier_minus <- outlier_minus %>% distinct(상권_코드,서비스_업종_코드)
 outlier_minus$사용여부 <- 1
 
-smallbz_sales <- merge(x = smallbz_sales,y = outlier_minus, by = c("기준_년_코드","기준_분기_코드","상권_코드"), all.x = T)
+smallbz_sales <- merge(x = smallbz_sales,y = outlier_minus, by = c("상권_코드","서비스_업종_코드"), all.x = T)
 smallbz_sales <- smallbz_sales %>% filter(is.na(사용여부) == T)
 smallbz_sales <- smallbz_sales[,-81]
 
@@ -67,28 +57,42 @@ smallbz_sales <- smallbz_sales %>%
                 매출_0614 = 시간대_06.11_매출_금액+시간대_11.14_매출_금액,
                 매출_1421 = 시간대_14.17_매출_금액+시간대_17.21_매출_금액,
                 매출_2106 = 시간대_21.24_매출_금액+시간대_00.06_매출_금액)
-vars <- c(1,2,3,8,9,80,81,82,83,84,85)
+vars <- c("상권_코드","서비스_업종_코드","기준_년_코드","기준_분기_코드","서비스_업종_코드_명","당월_매출_금액","점포수","매출_월화수목","매출_금토일","매출_0614","매출_1421","매출_2106")
 smallbz_sales <- smallbz_sales[,vars]
-colnames(smallbz_sales)[c(1,2,4,5,6)] <- c("년도","분기","소분류","매출총액","점포수_추정매출")
+colnames(smallbz_sales)[c(3,4,5,6,7)] <- c("년도","분기","소분류","매출총액","점포수_추정매출")
+
 
 #매출데이터 행정구 추가
 smallbz_total_1501_2009 <- merge(x = smallbz_sales, y = sangkwon_loc,by.x = '상권_코드', by.y = 'TRDAR_CD', all.x=T)
 smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009, y = sangkwon_gu,by.x = 'ADSTRD_CD', by.y = '행자부행정동코드', all.x=T)
 smallbz_total_1501_2009 <- rename(smallbz_total_1501_2009,c('행정구역' = '시군구명'))
 
+#15.1~20.3분기 데이터가 모두 있는 상권만 선택
+selected <- smallbz_total_1501_2009 %>%count(ADSTRD_CD,상권_코드,소분류) %>% filter(n == 23)
+smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009, y = selected, by = c('ADSTRD_CD','상권_코드','소분류'),all.x=T)
+smallbz_total_1501_2009 <- smallbz_total_1501_2009 %>% filter(n==23) %>% select(-n)
+
+#이상치 데이터가 있는 송파구 가락1동 반찬가게,슈퍼마켓,육류 데이터 모두 삭제
+smallbz_total_1501_2009 %>% filter(행정구역 == '송파구' & 소분류 %in% c("슈퍼마켓","육류판매","반찬가게") & 행정동명 == "가락1동") %>% 
+  mutate(년분기 = paste0(년도,"_",분기)) %>% ggplot(aes(x = 년분기, y=매출총액/점포수_추정매출,color = 소분류))+geom_point()
+smallbz_total_1501_2009 <- smallbz_total_1501_2009 %>% filter(행정동명 != "가락1동" | !소분류 %in% c("슈퍼마켓","육류판매","반찬가게"))
+
+#이상치 데이터가 있는 강남구 청담동 문구 데이터 중 상권코드 1000939 제거
+smallbz_total_1501_2009 %>% filter(행정구역 =="강남구" & 소분류 =="문구" & 행정동명 == '청담동') %>% 
+  mutate(년분기 = paste0(년도,"_",분기)) %>% ggplot(aes(x = 년분기, y = 매출총액/점포수_추정매출,color = as.factor(상권_코드)))+geom_point(position = position_jitter())
+smallbz_total_1501_2009 <- smallbz_total_1501_2009 %>% filter(행정동명 != "청담동" | 소분류 !="문구" | 상권_코드!=1000939)
+
 #코로나 확진자 수 가져오기
 setwd('C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터')
 covid19 <- readRDS("코로나19확진자현황.rds")
 
-smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009, y = covid19,
-                       by = c('년도','분기','행정구역'), all.x=T)
+smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009, y = covid19, by = c('년도','분기','행정구역'), all.x=T)
 
 #19년도 코로나 확진자 수 NA값을 0으로 대체
 smallbz_total_1501_2009[,"확진자수"] <- ifelse(is.na(smallbz_total_1501_2009$확진자수)==T,yes = 0,no = smallbz_total_1501_2009$확진자수)
 
 #유동인구 데이터 가져오기
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터/원본데이터")
-list.files()
 guess_encoding("서울시 우리마을가게 상권분석서비스(상권-추정유동인구).csv")
 smallbz_pop <- read.csv("서울시 우리마을가게 상권분석서비스(상권-추정유동인구).csv")
 
@@ -133,7 +137,6 @@ smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009, y = smallbz_data, 
 
 #상권-숙박시설 데이터 합치기
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터/원본데이터")
-list.files()
 guess_encoding("서울시 우리마을가게 상권분석서비스(상권-집객시설).csv")
 smallbz_faci <- read.csv("서울시 우리마을가게 상권분석서비스(상권-집객시설).csv")
 
@@ -162,7 +165,6 @@ smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009, y= transportation,
 
 #점포 개수 추가하기
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터/원본데이터")
-list.files()
 data1 <- read.csv("서울시_우리마을가게_상권분석서비스(상권-점포)_2015년.csv")
 data2 <- read.csv("서울시_우리마을가게_상권분석서비스(상권-점포)_2016년.csv")
 data3 <- read.csv("서울시_우리마을가게_상권분석서비스(상권-점포)_2017년.csv")
@@ -218,19 +220,20 @@ MD_category <- list(오락관련서비스 = c("PC방","노래방","볼링장","�
                     기타음식점 = c('분식전문점','제과점','치킨전문점','패스트푸드점'),
                     비알콜음료점 = c("커피-음료"),
                     일반음식점 = c('양식음식점','일식음식점','중식음식점','한식음식점'),
-                    주점업 = c('호프-간이주점'),
-                    자동차및부품판매 = c("중고차판매","자동차부품"),
-                    연료 = c("주유소"),
-                    전문서비스 = c('법무사사무소','변호사사무소','세무사사무소','회계사사무소'),
-                    기타전문 = c("사진관"),
-                    사업시설관리및지원 = c('건축물청소','여행사'),
-                    임대 = c("비디오&서적임대"),
-                    여가관련서비스 = c("독서실"))
+                    주점업 = c('호프-간이주점'))
+                    # 자동차및부품판매 = c("중고차판매","자동차부품"),
+                    # 연료 = c("주유소"),
+                    # 전문서비스 = c('법무사사무소','변호사사무소','세무사사무소','회계사사무소'),
+                    # 기타전문 = c("사진관"),
+                    # 사업시설관리및지원 = c('건축물청소','여행사'),
+                    # 임대 = c("비디오&서적임대"),
+                    # 여가관련서비스 = c("독서실")
+
 
 smallbz_total_1501_2009$중분류 <- 0
-
 for(i in 1:length(MD_category)){
   smallbz_total_1501_2009[smallbz_total_1501_2009$소분류 %in% MD_category[[i]],]$중분류 <- names(MD_category[i])
+  cat(round(i/length(MD_category),digits=4L)*100,"% 완료\n")
 }
 
 #최종 데이터셋 컬럼 정리
@@ -240,21 +243,11 @@ vars <- c("년도","분기","행정구역","행정동명","대분류","중분류
           "생존률_5년차","숙박시설_수","지하철역_수")
 
 smallbz_total_1501_2009 <- smallbz_total_1501_2009[,vars]
-colnames(smallbz_total_1501_2009)
+
 #범주형 및 연속형 데이터 정리
 vars <- 1:7
 smallbz_total_1501_2009[,vars] <- map_df(.x = smallbz_total_1501_2009[,vars],.f = as.factor)
 smallbz_total_1501_2009[,-vars] <- map_df(.x = smallbz_total_1501_2009[,-vars],.f = as.numeric)
-
-#15.1~20.3분기까지 분기별 데이터가 없는 경우 행정구역 별 업태 데이터 삭제
-insufficient_data_list <- smallbz_total_1501_2009 %>% 
-  distinct(년도,분기,행정구역,중분류,소분류) %>% 
-  count(행정구역,중분류,소분류) %>% 
-  mutate(사용여부 = ifelse(n ==23, 1, 0))
-
-smallbz_total_1501_2009 <- merge(x = smallbz_total_1501_2009,y = insufficient_data_list, by = c('행정구역','중분류','소분류'), all.x = T)
-smallbz_total_1501_2009 <- smallbz_total_1501_2009 %>% filter(사용여부 == 1)
-smallbz_total_1501_2009 <- smallbz_total_1501_2009[,-c(27,28)]
 
 #파일 저장
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터")
