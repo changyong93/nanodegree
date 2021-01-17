@@ -5,7 +5,7 @@ list.files()
 load("dataset_1501_2009.rda")
 windows()
 #년분기 및 행정구역에 따른 점포별 log(매출총액) 박스 플랏
-smallbz_total %>% 
+smallbz_total_1501_2009 %>% 
   mutate(년분기 = as.factor(paste0(년도,"_",분기))) %>% 
   filter(년분기 != "2020_3") %>% 
   mutate(매출총액 = 매출총액/점포수) %>% 
@@ -17,9 +17,9 @@ smallbz_total %>%
 
 #년도 분기 및 업태별 행정구역에 따른 log(매출) 박스플랏
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/eda/1501_2009/행정구_매출_박스플랏")
-gu_list <- smallbz_total %>% distinct(행정구역) %>% arrange(행정구역)
+gu_list <- smallbz_total_1501_2009 %>% distinct(행정구역) %>% arrange(행정구역)
 for(i in 1:25){
-  smallbz_total %>%
+  smallbz_total_1501_2009 %>%
     mutate(년분기 = as.factor(paste0(년도,"_",분기))) %>% 
     filter(년분기 != "2020_3" & 행정구역 == gu_list[i,]) %>% 
     ggplot(aes(x = 소분류, y = log(매출총액/점포수), fill = 년도))+
@@ -31,7 +31,7 @@ for(i in 1:25){
 }
 
 #행정구 및 중분류별 소분류에 따른 매출추이 비교
-gu_list <- smallbz_total %>% distinct(행정구역) %>% arrange(행정구역)
+gu_list <- smallbz_total_1501_2009 %>% distinct(행정구역) %>% arrange(행정구역)
 MD_category <- list(오락관련서비스 = c("PC방","노래방","볼링장","전자게임장"),
                            개인및소비용품수리 = c("가전제품수리", "미용실","자동차수리","통신기기수리"),
                            숙박 = c("고시원","여관"),
@@ -61,11 +61,11 @@ MD_category <- list(오락관련서비스 = c("PC방","노래방","볼링장","�
                            여가관련서비스 = c("독서실"))
 
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/eda/1501_2009/행정구역_중분류별_소분류 매출변화 추이_log")
-top_category <- smallbz_total %>% distinct(대분류,중분류,소분류)
+top_category <- smallbz_total_1501_2009 %>% distinct(대분류,중분류,소분류)
 k <- 1
 for(i in 1:nrow(gu_list)){
   for(j in 1:length(MD_category)){
-    graph <- smallbz_total %>% 
+    graph <- smallbz_total_1501_2009 %>% 
       mutate(년분기 = as.factor(paste0(년도,"_",분기))) %>% 
       filter(년분기 != "2020_3" & 행정구역 ==gu_list[i,] & 중분류 ==names(MD_category[j])) %>% 
       group_by(년도,분기,대분류,중분류,소분류,년분기) %>%
@@ -87,7 +87,7 @@ for(i in 1:nrow(gu_list)){
 
 #모든 값을 각 중분류의 평균값으로 적용하고,
 #스케일 조정 및 정규분포화를 위해 매출 및 유동인구 데이터는 ln 적용
-dataset <- smallbz_total %>% 
+dataset <- smallbz_total_1501_2009 %>% 
   group_by(년도,분기,행정구역,대분류,중분류) %>% 
   summarise(매출총액 = log(mean(매출총액)/mean(점포수)),
                 매출_월화수목 = log(mean(매출_월화수목)/mean(점포수)),
@@ -153,7 +153,7 @@ windows()
 
 corrplot(cor(trainset[,6:23],use = "na.or.complete"),method = "number")
 #목표변수인 매출총액과
-#매출_월화수목,매출_금토일,매출_0614,매출_1421,매출_2106 데이터는 강한 상관관계 있음
+#매출_월화수목,매출_금토일,매출_0614,매출_1421,데이터는 강한 상관관계 있음
 #입력변수로 채택
 
 #연속형인 목표형 데이터와 명목형인 입력변수 t검정 및 아노바 검정
@@ -264,9 +264,8 @@ duncan.test(y = aov(formula = 매출총액~년분기, data = trainset),
 #단, 모델에 입력 전후 결과 비교 해보기
 
 #최종 입력변수
-#확정 : 매출_월화수목,매출_금토일,매출_0614,매출_1421,매출_2106,대분류
-#비교 : 중분류,년도, 분기,행정구역,년분기
-
+#확정 : 매출_월화수목,매출_금토일,매출_0614,매출_1421,대분류
+#비교 : 매출_2106, 중분류,년도, 분기,행정구역,년분기
 #train & test set 저장
 setwd("C:/Users/ChangYong/Desktop/나노디그리/1.정규강의 학습자료/1차 프로젝트/소상공인/데이터")
-save(trainset,testset,dataset,smallbz_total,file = "dataset_set.rda")
+save(trainset,testset,dataset,smallbz_total_1501_2009,file = "dataset_set.rda")
